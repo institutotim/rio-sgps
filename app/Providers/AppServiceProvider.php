@@ -5,12 +5,14 @@ namespace SGPS\Providers;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
+use Schema;
 use SGPS\Entity\Family;
 use SGPS\Entity\Flag;
 use SGPS\Entity\Group;
 use SGPS\Entity\Person;
 use SGPS\Entity\Residence;
 use SGPS\Entity\User;
+use SGPS\Utils\DateUtils;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +24,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
-    	Carbon::setLocale('pt_BR');
+	    Schema::defaultStringLength(191);
+
+	    Carbon::setLocale('pt_BR');
+
+    	Carbon::setToStringFormat(DateUtils::BR_DATE_TIME);
 
     	$faker = \Faker\Factory::create('pt_BR');;
 

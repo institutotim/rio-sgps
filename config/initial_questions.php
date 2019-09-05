@@ -1,64 +1,85 @@
 <?php
 return [
 	'questions' => [
-//		'CE1' => [
-//			'code' => 'CE1',
+//		'CE01' => [
+//			'code' => 'CE01',
 //			'field_type' => 'coords',
 //			'title' => 'Coordenadas Georeferenciadas',
 //			'conditions' => null,
 //			'field_options' => null,
 //		],
-//		'CE2' => [
-//			'code' => 'CE2',
+//		'CE02' => [
+//			'code' => 'CE02',
 //			'field_type' => 'image',
 //			'title' => 'Fotografia da entrada',
 //			'conditions' => null,
 //			'field_options' => null,
 //		],
-//		    'CE3' => [
-//		    	'code' => 'CE3',
+//		    'CE03' => [
+//		    	'code' => 'CE03',
 //			    'field_type' => 'numeric',
 //			    'title' => 'Código do Domicílio',
 //			    'conditions' => null,
 //			    'field_options' => null,
 //		    ],
-//			'CE4' => [
-//				'code' => 'CE4',
+//			'CE04' => [
+//				'code' => 'CE04',
 //				'field_type' => 'numeric',
 //				'title' => 'Geocod',
 //				'conditions' => null,
 //				'field_options' => null,
 //			],
-//		'CE5' => [
-//			'code' => 'CE5',
+//		'CE05' => [
+//			'code' => 'CE05',
 //			'field_type' => 'numeric',
 //			'title' => 'Setor Censitario',
 //			'conditions' => null,
 //			'field_options' => null,
 //		],
-		'CE6' => [
-			'code' => 'CE6',
+		'CE06A' => [
+			'code' => 'CE06A',
 			'field_type' => 'text',
-			'title' => 'Endereço',
+			'title' => 'Endereço - Logradouro',
 			'conditions' => null,
 			'field_options' => null,
 		],
-		'CE7' => [
-			'code' => 'CE7',
+		'CE06B' => [
+			'code' => 'CE06B',
+			'field_type' => 'text',
+			'title' => 'Endereço - Número',
+			'conditions' => null,
+			'field_options' => null,
+		],
+		'CE06C' => [
+			'code' => 'CE06C',
+			'field_type' => 'text',
+			'title' => 'Endereço - CEP',
+			'conditions' => null,
+			'field_options' => null,
+		],
+		'CE06D' => [
+			'code' => 'CE06D',
+			'field_type' => 'text',
+			'title' => 'Endereço - Complemento',
+			'conditions' => null,
+			'field_options' => null,
+		],
+		'CE07' => [
+			'code' => 'CE07',
 			'field_type' => 'text',
 			'title' => 'Bairro',
 			'conditions' => null,
 			'field_options' => null,
 		],
-		'CE8' => [
-			'code' => 'CE8',
+		'CE08' => [
+			'code' => 'CE08',
 			'field_type' => 'text',
 			'title' => 'Nome da Comunidade - se houver',
 			'conditions' => null,
 			'field_options' => null,
 		],
-		'CE9' => [
-			'code' => 'CE9',
+		'CE09' => [
+			'code' => 'CE09',
 			'field_type' => 'text',
 			'title' => 'Comentário',
 			'conditions' => null,
@@ -263,7 +284,7 @@ return [
 		'CE38' => [
 			'code' => 'CE38',
 			'field_type' => 'yesnonullable',
-			'title' => 'Nos últimos 5 anos, alguma criança de até 5 anos que morava nesta casa morreu? (relativa à data do IPM?)',
+			'title' => 'Nos últimos 5 anos, alguma criança de até 5 anos que morava nesta casa morreu?',
 			'conditions' => null,
 			'field_options' => null,
 		],
@@ -291,7 +312,9 @@ return [
 			'field_type' => 'numeric',
 			'title' => 'Numero do NIS do responsavel',
 			'conditions' => null,
-			'field_options' => null,
+			'field_options' => [
+				'mask' => '###########',
+			],
 		],
 		'CE42' => [
 			'code' => 'CE42',
@@ -328,10 +351,10 @@ return [
 			'conditions' => null,
 			'field_options' => [
 				1 => 'Sim, está cumprindo em meio aberto',
-				2 => 'Sim, está cumprindo em meio fechado,',
-				3 => 'Sim, mas está em situação de descumprimento,',
-				4 => 'Não há ninguém em situação de medida socioeducativa,',
-				99 => 'NS/NR',
+				2 => 'Sim, está cumprindo em meio fechado',
+				3 => 'Sim, mas está em situação de descumprimento',
+				4 => 'Não',
+				99 => 'Não se aplica',
 			]
 		],
 //			'CE47' => [
@@ -416,22 +439,29 @@ return [
 		],
 		'CE55' => [
 			'code' => 'CE55',
-			'field_type' => 'yesno',
-			'title' => 'Possui CERTIDÃO DE NASCIMENTO',
-			'conditions' => null,
-			'field_options' => null,
+			'field_type' => 'select_one',
+			'title' => 'Possui Registro de Nascimento',
+			'conditions' => [
+				['CE50', 'eq', 1],
+			],
+			'field_options' => [
+				1 => 'Sim, tem certidão',
+				2 => 'Sim, não tem certidão',
+				3 => 'Não',
+				99 => 'NS/NR',
+			],
 		],
 		'CE56' => [
 			'code' => 'CE56',
 			'field_type' => 'yesno',
 			'title' => 'Possui  RG / CARTEIRA DE IDENTIDADE',
-			'conditions' => null,
+			['CE50', 'eq', 1],
 			'field_options' => null,
 		],
 		'CE57' => [
 			'code' => 'CE57',
 			'field_type' => 'numeric',
-			'title' => 'Numero do RG (condição de o individuo é o responsavel-(CE50) e possui o documento-(CE56))',
+			'title' => 'Número do RG',
 			'conditions' => [
 				['CE50', 'eq', 1],
 				['CE56', 'is_true'],
@@ -442,32 +472,47 @@ return [
 			'code' => 'CE58',
 			'field_type' => 'yesno',
 			'title' => 'Possui CPF',
-			'conditions' => null,
+			['CE50', 'eq', 1],
 			'field_options' => null,
 		],
 		'CE59' => [
 			'code' => 'CE59',
 			'field_type' => 'numeric',
-			'title' => 'Numero do CPF (condição de o individuo é o responsavel-(CE50) e possui o documento - (CE58))',
+			'title' => 'Numero do CPF',
 			'conditions' => [
 				['CE50', 'eq', 1],
 				['CE58', 'is_true']
 			],
-			'field_options' => null,
+			'field_options' => [
+				'mask' => '###.###.###.##',
+			],
 		],
 		'CE60' => [
 			'code' => 'CE60',
-			'field_type' => 'yesno',
+			'field_type' => 'select_one',
 			'title' => 'Possui CARTEIRA DE TRABALHO',
-			'conditions' => null,
-			'field_options' => null,
+			'conditions' => [
+				['CE53', 'age_gt', 14],
+			],
+			'field_options' => [
+				1 => 'Sim',
+				2 => 'Não',
+				3 => 'Não, mais já teve',
+				99 => 'Não se aplica',
+			],
 		],
 		'CE61' => [
 			'code' => 'CE61',
-			'field_type' => 'yesno',
+			'field_type' => 'select_one',
 			'title' => 'Possui TÍTULO DE ELEITOR',
-			'conditions' => null,
-			'field_options' => null,
+			'conditions' => [
+				['CE53', 'age_gt', 16],
+			],
+			'field_options' => [
+				1 => 'Sim',
+				2 => 'Não',
+				3 => 'Não se aplica'
+			],
 		],
 		'CE62' => [
 			'code' => 'CE62',
@@ -478,43 +523,61 @@ return [
 				1 => 'SIM - rede municipal',
 				2 => 'SIM - outra rede publica',
 				3 => 'SIM - rede privada',
-				4 => 'NÃO',
+				4 => 'NÃO, mas já estudou',
+				5 => 'NÃO, nunca estudou',
+				99 => 'Não sabe / Não respondeu',
+			]
+		],
+		'CE62B' => [
+			'code' => 'CE62B',
+			'field_type' => 'select_one',
+			'title' => 'Indique o último curso concluído ou em conclusão',
+			'conditions' => null,
+			'field_options' => [
+				1 => 'Creche',
+				2 => 'Pré-escolar (maternal e jardim de infância)',
+				3 => 'Classe de alfabetização',
+				4 => 'Regular do ensino fundamental',
+				5 => 'Educação de jovens e adultos – EJA',
+				6 => 'Regular do ensino médio',
+				7 => 'Alfabetização de jovens e adultos',
+				8 => 'Superior de graduação ou acima',
+				99 => 'Não sabe / Não respondeu',
 			]
 		],
 		'CE63' => [
 			'code' => 'CE63',
 			'field_type' => 'yesnonullable',
-			'title' => 'Possui 5 anos de estudos completos? (perguntado caso já tenha frequentado a escola- (CE62) e possua mais de 14 anos - (CE553))',
+			'title' => 'Possui 5 anos de estudos completos?',
 			'conditions' => [
 				['CE53', 'age_gt', 14],
-				['CE62', 'is_true']
+				['CE62', 'is_one_of', [1,2,3,4]]
 			],
 			'field_options' => null,
 		],
 		'CE64' => [
 			'code' => 'CE64',
 			'field_type' => 'select_one',
-			'title' => 'Na última semana, tinha algum trabalho remunerado ou jovem aprendiz? (Só para pessoas acima de 10 anos - (CE53))',
+			'title' => 'Na última semana, tinha algum trabalho remunerado ou jovem aprendiz?',
 			'conditions' => [
-				['CE53', 'age_gt', 10],
+				['CE53', 'age_gt', 14],
 			],
 			'field_options' => [
-				1 => 'SIM',
-				2 => 'NÃO, MAS TEVE NÃO REMUNERADO',
-				3 => 'NÃO TEVE TRABALHO',
-				99 => 'NS/NR',
+				1 => 'Sim',
+				2 => 'Não',
+				99 => 'Não se aplica',
 			]
 		],
-		'CE65' => [
-			'code' => 'CE65',
-			'field_type' => 'yesnonullable',
-			'title' => 'No último mês, tomou alguma providência de fato para conseguir trabalho remunerado? (perguntado caso responda não - C64)',
-			'conditions' => [
-				['C64', 'is_false'],
-				['CE53', 'age_gt', 10],
-			],
-			'field_options' => null,
-		],
+//		'CE65' => [
+//			'code' => 'CE65',
+//			'field_type' => 'yesnonullable',
+//			'title' => 'No último mês, tomou alguma providência de fato para conseguir trabalho remunerado? (perguntado caso responda não - C64)',
+//			'conditions' => [
+//				['C64', 'is_false'],
+//				['CE53', 'age_gt', 10],
+//			],
+//			'field_options' => null,
+//		],
 		'CE66' => [
 			'code' => 'CE66',
 			'field_type' => 'select_one',
@@ -565,13 +628,13 @@ return [
 			'conditions' => null,
 			'field_options' => null,
 		],
-		'CE71' => [
-			'code' => 'CE71',
-			'field_type' => 'text',
-			'title' => 'Nome do recenseador',
-			'conditions' => null,
-			'field_options' => null,
-		],
+//		'CE71' => [
+//			'code' => 'CE71',
+//			'field_type' => 'text',
+//			'title' => 'Nome do recenseador',
+//			'conditions' => null,
+//			'field_options' => null,
+//		],
 //			'CE72' => [
 //				'code' => 'CE72',
 //				'field_type' => 'text',
@@ -579,31 +642,31 @@ return [
 //				'conditions' => null,
 //				'field_options' => null,
 //			],
-//			'CE73' => [
-//				'code' => 'CE73',
-//				'field_type' => 'numeric',
-//				'title' => 'Senha',
-//				'conditions' => null,
-//				'field_options' => null,
-//			],
-		'CE74' => [
-			'code' => 'CE74',
-			'field_type' => 'date',
-			'title' => 'data do preenchimento do questionario',
-			'conditions' => null,
-			'field_options' => null,
-		],
+//		'CE73' => [
+//			'code' => 'CE73',
+//			'field_type' => 'numeric',
+//			'title' => 'Senha',
+//			'conditions' => null,
+//			'field_options' => null,
+//		],
+//		'CE74' => [
+//			'code' => 'CE74',
+//			'field_type' => 'date',
+//			'title' => 'data do preenchimento do questionario',
+//			'conditions' => null,
+//			'field_options' => null,
+//		],
 		'CE75' => [
 			'code' => 'CE75',
 			'field_type' => 'date',
-			'title' => 'data da primeira visita do Agente Comunitário de Saude - ACS (registrado quando ocorre o primeiro contato)',
+			'title' => 'data da primeira visita do Agente Comunitário de Saude - ACS',
 			'conditions' => null,
 			'field_options' => null,
 		],
 		'CE76' => [
 			'code' => 'CE76',
 			'field_type' => 'date',
-			'title' => 'data da segunda visita do Agente Comunitário de Saude - ACS (caso não tenha comparecido)',
+			'title' => 'data da segunda visita do Agente Comunitário de Saude - ACS',
 			'conditions' => [
 				['CE75', 'is_filled'],
 				['CE75', 'before_today'],
@@ -627,10 +690,37 @@ return [
 			],
 			'field_options' => null,
 		],
-		'CE80' => [
-			'code' => 'CE80',
+		'CE80A' => [
+			'code' => 'CE80A',
 			'field_type' => 'text',
-			'title' => 'Novo endereço caso seja conhecido - Rua/numero/Bairro/Cidade (avia ao IPP para reclassificação territoral)',
+			'title' => 'Novo endereço caso seja conhecido - Logradouro',
+			'conditions' => [
+				['CE78', 'is_true']
+			],
+			'field_options' => null,
+		],
+		'CE80B' => [
+			'code' => 'CE80B',
+			'field_type' => 'text',
+			'title' => 'Novo endereço caso seja conhecido - Número',
+			'conditions' => [
+				['CE78', 'is_true']
+			],
+			'field_options' => null,
+		],
+		'CE80C' => [
+			'code' => 'CE80C',
+			'field_type' => 'numeric',
+			'title' => 'Novo endereço caso seja conhecido - CEP',
+			'conditions' => [
+				['CE78', 'is_true']
+			],
+			'field_options' => null,
+		],
+		'CE80D' => [
+			'code' => 'CE80D',
+			'field_type' => 'text',
+			'title' => 'Novo endereço caso seja conhecido - Complemento',
 			'conditions' => [
 				['CE78', 'is_true']
 			],
@@ -639,13 +729,13 @@ return [
 		'CE81' => [
 			'code' => 'CE81',
 			'field_type' => 'select_one',
-			'title' => 'Encaminhamento à CRE (perguntado em caso de alerta de criança fora da escola) (alerta condição 62)',
+			'title' => 'Encaminhamento à CRE',
 			'conditions' => [
-				['CE62', 'is_false']
+				['CE62', 'is_one_of', [4, 5]]
 			],
 			'field_options' => [
 				1 => 'Confirmada existência de criança fora da escola e encaminhada pelo ACS',
-				2 => 'Confirmada existência pelo ACS mas não deseja ir à CRE',
+				2 => 'Confirmada existência pelo ACS, encaminhamento recusado pela família',
 				3 => 'Não confirmada presença de criança fora da escola pelo ACS',
 				4 => 'Encaminhada a CRE pelo CRAS',
 				5 => 'Recebida pela CRE',
@@ -674,9 +764,9 @@ return [
 		'CE85' => [
 			'code' => 'CE85',
 			'field_type' => 'date',
-			'title' => 'Em caso de entrega de Filtro - registro da data (acionado pelo alerta - (Alerta - 29)',
+			'title' => 'Em caso de entrega de Filtro - registro da data',
 			'conditions' => [
-				['CE29' => 'is_false']
+				['CE29', 'is_false']
 			],
 			'field_options' => null,
 		],
@@ -691,8 +781,8 @@ return [
 		],
 		'CE87' => [
 			'code' => 'CE87',
-			'field_type' => 'yesno',
-			'title' => 'Acompanhamento pelo ACS segundo protocolos de visitas para cada categoria de atendimento em dia (confirmação mensal se os atendimento de saúde está em dia)',
+			'field_type' => 'date',
+			'title' => 'Data da visita de seguimento do Territórios Sociais',
 			'conditions' => [
 				['CE75', 'is_filled']
 			],
@@ -711,7 +801,7 @@ return [
 		'CE89' => [
 			'code' => 'CE89',
 			'field_type' => 'yesno',
-			'title' => 'gestantes em acompanhamento pré-natal em dia (alerta mensal) (se condição "Grávida" estiver ligada) (duração máxima 9 meses, a partir da data estimada ou do registro da gravidez)',
+			'title' => 'gestantes em acompanhamento pré-natal em dia',
 			'conditions' => [
 				['CE54', 'is_true'],
 				['CE75', 'is_filled'],
@@ -721,7 +811,7 @@ return [
 		'CE90' => [
 			'code' => 'CE90',
 			'field_type' => 'yesno',
-			'title' => 'para crianças, vacinação em dia  - colocar um verificador da idade da criança - (CE53))',
+			'title' => 'para crianças, vacinação em dia',
 			'conditions' => [
 				['CE53', 'is_children'],
 				['CE75', 'is_filled'],
@@ -731,7 +821,7 @@ return [
 		'CE91' => [
 			'code' => 'CE91',
 			'field_type' => 'yesno',
-			'title' => 'crianças menores de 6 anos com registro de avaliação de crescimento e desenvolvimento no prontuário em dia (alerta ativado pela idade para 1 e 2 anos  (CE53)',
+			'title' => 'crianças menores de 6 anos com registro de avaliação de crescimento e desenvolvimento no prontuário em dia',
 			'conditions' => [
 				['CE53', 'age_lt', 6],
 				['CE75', 'is_filled'],
@@ -741,7 +831,7 @@ return [
 		'CE92' => [
 			'code' => 'CE92',
 			'field_type' => 'yesnonullable',
-			'title' => 'Mulheres em idade fértil de 12 a 49 anos com informação de acompanhamento de planejamento reprodutivo no prontuário no último ano. (CE53)',
+			'title' => 'Mulheres em idade fértil de 12 a 49 anos com informação de acompanhamento de planejamento reprodutivo no prontuário no último ano',
 			'conditions' => [
 				['CE53', 'age_between', 12, 49],
 				['CE51', 'eq', 2],
@@ -773,7 +863,7 @@ return [
 		'CE95' => [
 			'code' => 'CE95',
 			'field_type' => 'date',
-			'title' => 'Data do último exame de mamografia para Mulheres entre 50 e 69 anos (fez? sim ou não. Alerta de dois anos a partir da data da última mamografia)',
+			'title' => 'Data do último exame de mamografia para Mulheres entre 50 e 69 anos',
 			'conditions' => [
 				['CE51', 'eq', 2],
 				['CE53', 'age_between', 50, 69],
@@ -835,7 +925,7 @@ return [
 		'CE101' => [
 			'code' => 'CE101',
 			'field_type' => 'text',
-			'title' => 'Nome da Escola',
+			'title' => 'Designação e nome da escola',
 			'conditions' => [
 				['CE97', 'eq', 1],
 				['CE98', 'is_true'],
@@ -845,7 +935,7 @@ return [
 		'CE102' => [
 			'code' => 'CE102',
 			'field_type' => 'select_one',
-			'title' => 'Situação de frequência escolar (guardar a série histórica mensal)',
+			'title' => 'Situação de frequência escolar',
 			'conditions' => [
 				['CE97', 'eq', 1],
 				['CE98', 'is_true'],
@@ -855,52 +945,72 @@ return [
 				2 => 'Infrequente Leve (de 2 a 3 faltas no mês)',
 				3 => 'Infrequente Grave (de 4 a 9 faltas no mês)',
 				4 => 'Risco de Abandono (a partir de 10 faltas no mês)',
+				5 => 'Abandono Escolar',
 			]
+		],
+		'CE102B' => [
+			'code' => 'CE102B',
+			'field_type' => 'date',
+			'title' => 'Data de verificação da frequência escolar',
+			'conditions' => [
+				['CE102', 'is_filled'],
+			],
+			'field_options' => null,
 		],
 		'CE103' => [
 			'code' => 'CE103',
 			'field_type' => 'date',
-			'title' => 'Data de chegada de individuo encaminhado à SMDEI (alerte do CRAS) ',
+			'title' => 'Data de chegada de individuo encaminhado à SMDEI',
 			'conditions' => [
-				['CE104', 'eq', 1]
+				['CE104A', 'is_true']
 			],
 			'field_options' => null,
 		],
-		'CE104' => [
-			'code' => 'CE104',
+
+		'CE104A' => [
+			'code' => 'CE104A',
+			'field_type' => 'yesno',
+			'title' => 'Foi realizado encaminhamento para SMDEI?',
+			'conditions' => [
+				['CE53', 'age_gt', 14]
+			],
+			'field_options' => null,
+		],
+
+		'CE104B' => [
+			'code' => 'CE104B',
 			'field_type' => 'select_one',
 			'title' => 'Encaminhamento - curso de capacitação e qualificação profissional',
-			'conditions' => null,
-			'field_options' => [
-				1 => 'Encaminhado pelo CRAS',
-				2 => 'Recebido SMDEI e não aceitou realizar inscrição',
-				3 => 'Desistiu/sem vaga',
-				4 => 'Inscritos',
-				5 => 'Matriculado',
-				6 => 'Curso concluido',
-				7 => 'Abandono/evasão',
-			]
-		],
-		'CE105' => [
-			'code' => 'CE105',
-			'field_type' => 'select_one',
-			'title' => 'Encaminhamento  - emissão de CTPS (alerta para todos os parceiros quando o documento estiver com status de emitido, cai o alerta quando o status for documento entregue)',
 			'conditions' => [
-				['CE104', 'eq', 1],
+				['CE104A', 'is_true'],
 			],
 			'field_options' => [
 				1 => 'Encaminhado pelo CRAS',
-				2 => 'Documento Emitido',
+				2 => 'Desistiu',
+				3 => 'Sem vaga',
+				4 => 'Inscrito',
+			]
+		],
+		'CE104C' => [
+			'code' => 'CE104C',
+			'field_type' => 'select_one',
+			'title' => 'Encaminhamento - Emissão de CTPS',
+			'conditions' => [
+				['CE104A', 'is_true'],
+			],
+			'field_options' => [
+				1 => 'Encaminhado pelo CRAS para emissão de 1ª via',
+				2 => 'Encaminhado pelo CRAS para emissão de 2ª via',
 				3 => 'Realizada solicitação para emissão de documento',
 				4 => 'Sem Possibilidade de Emissão',
 			]
 		],
-		'CE106' => [
-			'code' => 'CE106',
+		'CE104D' => [
+			'code' => 'CE104D',
 			'field_type' => 'select_one',
 			'title' => 'Encaminhamento para intermediação de mão de obra',
 			'conditions' => [
-				['CE104', 'eq', 1]
+				['CE104A', 'is_true'],
 			],
 			'field_options' => [
 				1 => 'Encaminhado pelo CRAS',
@@ -913,7 +1023,7 @@ return [
 //				'field_type' => 'select_one',
 //				'title' => 'Encaminhamento para vaga de Jovem Aprendiz',
 //				'conditions' => [
-//					['CE104', 'eq', 1],
+//					['CE104A',is_true'],
 //				],
 //				'field_options' => [
 //					1 => 'Encaminhado pelo CRAS',
@@ -1000,15 +1110,17 @@ return [
 			'field_type' => 'yesno',
 			'title' => 'Em caso de não possuir REGISTRO CIVIL/CERTIDÃO DE NASCIMENTO - individuo encaminhado ao órgão competente?',
 			'conditions' => [
-				['CE55', 'is_false'],
+				['CE55', 'is_one_of', [2,3]],
 			],
 			'field_options' => null,
 		],
 		'CE118' => [
 			'code' => 'CE118',
 			'field_type' => 'text',
-			'title' => 'Órgão para onde foi feito o encaminhamento',
-			'conditions' => null,
+			'title' => 'Órgão de encaminhamento para emissão da certidão ou registro',
+			'conditions' => [
+				['CE55', 'is_one_of', [2,3]],
+			],
 			'field_options' => null,
 		],
 		'CE119' => [
@@ -1023,8 +1135,10 @@ return [
 		'CE120' => [
 			'code' => 'CE120',
 			'field_type' => 'text',
-			'title' => 'Órgão para onde foi feito o encaminhamento',
-			'conditions' => null,
+			'title' => 'Órgão de encaminhamento para emissão da identidade',
+			'conditions' => [
+				['CE56', 'is_false']
+			],
 			'field_options' => null,
 		],
 		'CE121' => [
@@ -1039,7 +1153,7 @@ return [
 		'CE122' => [
 			'code' => 'CE122',
 			'field_type' => 'text',
-			'title' => 'Órgão para onde foi feito o encaminhamento',
+			'title' => 'Órgão de encaminhamento para emissão do CPF',
 			'conditions' => null,
 			'field_options' => null,
 		],
@@ -1124,15 +1238,17 @@ return [
 			'field_type' => 'numeric',
 			'title' => 'CNS',
 			'conditions' => null,
-			'field_options' => null,
+			'field_options' => [
+				'mask' => '###############',
+			],
 		],
-		'CE134' => [
-			'code' => 'CE134',
-			'field_type' => 'date',
-			'title' => 'Data de entrada da família no Sistema TS (início do protocolo)',
-			'conditions' => null,
-			'field_options' => null,
-		],
+//		'CE134' => [
+//			'code' => 'CE134',
+//			'field_type' => 'date',
+//			'title' => 'Data de entrada da família no Sistema TS',
+//			'conditions' => null,
+//			'field_options' => null,
+//		],
 		'CE135' => [
 			'code' => 'CE135',
 			'field_type' => 'numeric',
@@ -1143,6 +1259,7 @@ return [
 	],
 
 	'categories' => [
+		'busca_ativa' => 'Busca Ativa',
 		'ipm' => 'IPM',
 		'saude' => 'Saúde',
 		'educacao' => 'Educação',
@@ -1152,25 +1269,28 @@ return [
 
 	'category_map' => [
 		'residence' => [
-			'ipm' => ['CE1', 'CE2', 'CE5', 'CE6', 'CE7', 'CE8', 'CE9', 'CE10', 'CE11', 'CE12', 'CE13', 'CE14', 'CE15', 'CE16', 'CE17', 'CE18', 'CE19', 'CE20', 'CE21', 'CE22', 'CE23', 'CE24', 'CE25', 'CE26', 'CE27', 'CE28', 'CE29', 'CE30'],
+			'ipm' => ['CE20', 'CE21', 'CE22', 'CE23', 'CE24', 'CE25', 'CE26', 'CE28', 'CE29', 'CE30'],
+			'busca_ativa' => ['CE06A', 'CE06B', 'CE06C', 'CE06D', 'CE07', 'CE08', 'CE09', 'CE10', 'CE11', 'CE20', 'CE21', 'CE22', 'CE23', 'CE24', 'CE25', 'CE26', 'CE27', 'CE28', 'CE29', 'CE30'],
 			'saude' => ['CE85'],
 			'educacao' => [],
 			'emprego' => [],
 			'assistencia' => [],
 		],
 		'family' => [
-			'ipm' => ['CE134', 'CE32', 'CE33', 'CE34', 'CE35', 'CE36', 'CE37', 'CE38', 'CE39', 'CE41', 'CE71', 'CE74'],
-			'saude' => ['CE75', 'CE76', 'CE78', 'CE79', 'CE80', 'CE81', 'CE82', 'CE83'],
+			'ipm' => ['CE38', 'CE39', 'CE37'],
+			'busca_ativa' => ['CE32', 'CE33', 'CE34', 'CE35', 'CE36', 'CE37', 'CE38', 'CE39', 'CE41', 'CE113'],
+			'saude' => ['CE75', 'CE76', 'CE78', 'CE79', 'CE80A', 'CE80B', 'CE80C', 'CE80D', 'CE81', 'CE82'],
 			'educacao' => ['CE96'],
 			'emprego' => [],
-			'assistencia' => ['CE108', 'CE109', 'CE78', 'CE79', 'CE80', 'CE110', 'CE41', 'CE34', 'CE112', 'CE113', 'CE114', 'CE115', 'CE116', 'CE124', 'CE125', 'CE126', 'CE127', 'CE128', 'CE46', 'CE129', 'CE35', 'CE81'],
+			'assistencia' => ['CE108', 'CE109', 'CE78', 'CE79', 'CE80A', 'CE80B', 'CE80C', 'CE80D', 'CE110', 'CE41', 'CE34', 'CE112', 'CE114', 'CE115', 'CE116', 'CE124', 'CE125', 'CE126', 'CE127', 'CE128', 'CE46', 'CE129', 'CE35', 'CE81'],
 		],
 		'person' => [
-			'ipm' => ['CE48', 'CE49', 'CE50', 'CE51', 'CE52', 'CE53', 'CE54', 'CE55', 'CE56', 'CE57', 'CE58', 'CE59', 'CE62', 'CE63', 'CE70'],
-			'saude' => ['CE86', 'CE133', 'CE87', 'CE54', 'CE89', 'CE90', 'CE91', 'CE92', 'CE93', 'CE94', 'CE95'],
-			'educacao' => ['CE97', 'CE98', 'CE99', 'CE100', 'CE101', 'CE102', 'CE66', 'CE67', 'CE68', 'CE69'],
-			'emprego' => ['CE103', 'CE104', 'CE105', 'CE106'],
-			'assistencia' => ['CE55', 'CE117', 'CE118', 'CE56', 'CE57', 'CE119', 'CE120', 'CE58', 'CE59', 'CE121', 'CE122', 'CE60', 'CE105', 'CE61', 'CE123', 'CE66', 'CE67', 'CE68', 'CE69', 'CE130', 'CE131', 'CE132', 'CE104', 'CE106', 'CE62', 'CE63', 'CE64', 'CE65'],
+			'ipm' => ['CE62', 'CE63'],
+			'busca_ativa' => ['CE48', 'CE49', 'CE50', 'CE51', 'CE52', 'CE53', 'CE54', 'CE55', 'CE56', 'CE57', 'CE58', 'CE59', 'CE62', 'CE62B', 'CE63', 'CE70', 'CE66', 'CE67', 'CE68', 'CE69'],
+			'saude' => ['CE86', 'CE133', 'CE87', 'CE54', 'CE83', 'CE89', 'CE90', 'CE91', 'CE92', 'CE93', 'CE94', 'CE95'],
+			'educacao' => ['CE97', 'CE98', 'CE99', 'CE100', 'CE101', 'CE102', 'CE102B', 'CE66', 'CE67', 'CE68', 'CE69'],
+			'emprego' => ['CE103', 'CE104A', 'CE104B', 'CE104C', 'CE104D'],
+			'assistencia' => ['CE55', 'CE117', 'CE118', 'CE56', 'CE57', 'CE119', 'CE120', 'CE58', 'CE59', 'CE121', 'CE122', 'CE60', 'CE61', 'CE123', 'CE130', 'CE131', 'CE132', 'CE104A', 'CE104B', 'CE104C', 'CE104D', 'CE62', 'CE62B', 'CE63', 'CE64'],
 		],
 	],
 

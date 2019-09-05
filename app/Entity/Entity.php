@@ -21,10 +21,12 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Entity
  * @package SGPS\Entity
+ * @property Sector $sector
  * @property QuestionAnswer[]|Collection $answers
  * @property Flag[]|Collection $flags
  * @property User[]|Collection $assignedUsers
  * @property UserAssignment[]|Collection $assignments
+ * @property FlagAttribution[]|Collection $attributedFlags
  */
 abstract class Entity extends Model {
 
@@ -61,7 +63,26 @@ abstract class Entity extends Model {
 		return "{$this->getEntityType()}:{$this->getEntityID()}";
 	}
 
+	/**
+	 * Abstract: Builds a basic JSON for entity identification
+	 * @return array
+	 */
+	public function toBasicJson() : array {
+		return [
+			'type' => $this->getEntityType(),
+			'id' => $this->getEntityID(),
+		];
+	}
+
 	// ----------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Relationship: entities with sector
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function sector() {
+		return $this->hasOne(Sector::class, 'id', 'sector_id');
+	}
 
 	/**
 	 * Relationship: entities with question answers
@@ -88,6 +109,16 @@ abstract class Entity extends Model {
 	}
 
 	/**
+	 * Relationship: entities with flags, through flag attributions, that are active
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+	 */
+	public function activeFlags() {
+		return $this->morphToMany(Flag::class, 'entity', 'flag_attributions')
+			->where('is_completed', false)
+			->where('is_cancelled', false);
+	}
+
+	/**
 	 * Relationship: entities with assigned users (through UserAssignment's table)
 	 * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
 	 */
@@ -104,6 +135,22 @@ abstract class Entity extends Model {
 	public function assignments() {
 		// This is possible because of UUID uniqueness; otherwise, entity_type would be necessary
 		return $this->hasMany(UserAssignment::class, 'entity_id', 'id');
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	public function scopeHasAnsweredQuestionWith($query, $questionCode, $questionType, $expectedAnswer) {
+		return $query->whereHas('answers', function ($sq) use ($questionCode, $questionType, $expectedAnswer) {
+			return $sq
+				->where('question_code', $questionCode)
+				->valueEqualsTo($questionType, $expectedAnswer);
+		});
+	}
+
+	public function scopeHasActiveFlag($query, $flagCode) {
+		return $query->whereHas('activeFlags', function ($sq) use ($flagCode) {
+			return $sq->where('code', $flagCode);
+		});
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -174,7 +221,7 @@ abstract class Entity extends Model {
 	 * Fetches an entity by type/ID pair
 	 * @param string $type The entity type ('residence', 'family' or 'person')
 	 * @param string $id The entity ID
-	 * @return Entity|null The found entity, or null if not found.
+	 * @return Entity|Model|null The found entity, or null if not found.
 	 */
 	public static function fetchByID(string $type, string $id) : ?Entity {
 		return static::getQuery($type)
@@ -217,7 +264,7 @@ abstract class Entity extends Model {
 	 * @return bool
 	 */
 	public function hasFlagAttribution(Flag $flag) : bool {
-		return $this->attributedFlags()->where('flag_id', $flag->id)->exists();
+		return $this->attributedFlags->where('flag_id', $flag->id)->isNotEmpty();
 	}
 
 	/**
@@ -226,7 +273,32 @@ abstract class Entity extends Model {
 	 * @return null|FlagAttribution
 	 */
 	public function getFlagAttribution(Flag $flag) : ?FlagAttribution {
-		return $this->attributedFlags()->where('id', $flag->id)->first();
+		return $this->attributedFlags->where('id', $flag->id)->first();
+	}
+
+	/**
+	 * Gets the list of all groups linked to this entity by their flag.
+	 * @return Group[]|Collection
+	 */
+	public function resolveLinkedGroups() {
+		return $this
+			->loadMissing(['flags.groups'])
+			->flags
+			->map(function ($flag) {
+				return $flag->groups;
+			})
+			->flatten();
+	}
+
+	/**
+	 * Gets the list of all equipments linked to this entity by their sector.
+	 * @return Equipment[]|Collection
+	 */
+	public function resolveLinkedEquipments() {
+		return $this
+			->loadMissing('sector.equipments')
+			->sector
+			->equipments;
 	}
 
 }

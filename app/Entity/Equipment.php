@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SGPS\Traits\IndexedByUUID;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Equipment
@@ -27,6 +28,7 @@ use SGPS\Traits\IndexedByUUID;
  * @property string $id
  * @property string $type
  * @property string $code
+ * @property string $group_code
  * @property string $name
  * @property string $address
  *
@@ -41,14 +43,41 @@ class Equipment extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
+	use LogsActivity;
 
+    /**
+     * Coordenadoria Regional de Educação
+     */
 	const TYPE_CRE = "CRE";
+
+    /**
+     * Unidade de Saúde
+     */
+	const TYPE_UBS = "UBS";
+
+    /**
+     * Centro de Referência em Assistência Social
+     */
 	const TYPE_CRAS = "CRAS";
+
+    /**
+     * Centro Municipal de Trabalho e Emprego
+     */
+	const TYPE_CMTE = "CMTE";
+
+    /**
+     * Secretaria Municipal da Saúde
+     */
 	const TYPE_SMS = "SMS";
 
+	/**
+	 * Valid equipment types
+	 */
 	const TYPES = [
 		self::TYPE_CRE,
+		self::TYPE_UBS,
 		self::TYPE_CRAS,
+		self::TYPE_CMTE,
 		self::TYPE_SMS
 	];
 
@@ -56,6 +85,15 @@ class Equipment extends Model {
 	protected $fillable = [
 		'type',
 		'code',
+		'group_code',
+		'name',
+		'address',
+	];
+
+	protected static $logAttributes = [
+		'type',
+		'code',
+		'group_code',
 		'name',
 		'address',
 	];

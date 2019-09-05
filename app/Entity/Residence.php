@@ -22,6 +22,7 @@ use Laravel\Scout\Searchable;
 use SGPS\Traits\HasShortCode;
 use SGPS\Traits\IndexedByUUID;
 use SGPS\Utils\Sanitizers;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Residence
@@ -51,6 +52,7 @@ class Residence extends Entity {
 	use SoftDeletes;
 	use HasShortCode;
 	use Searchable;
+	use LogsActivity;
 
 	protected $table = 'residences';
 
@@ -69,15 +71,16 @@ class Residence extends Entity {
 		'lng' => 'float',
 	];
 
-	// ---------------------------------------------------------------------------------------------------------------
+	protected static $logAttributes = [
+		'sector_code',
+		'lat',
+		'lng',
+		'address',
+		'territory',
+		'reference',
+	];
 
-	/**
-	 * Relationship: residences with sectors
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function sector() {
-		return $this->hasOne(Sector::class, 'id', 'sector_id');
-	}
+	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * Relationship: residences with families
@@ -130,6 +133,19 @@ class Residence extends Entity {
 	}
 
 	/**
+	 * Concrete: Builds a basic JSON for entity identification
+	 * @return array
+	 */
+	public function toBasicJson(): array {
+		return [
+			'type' => $this->getEntityType(),
+			'id' => $this->getEntityID(),
+			'address' => $this->address,
+			'shortcode' => $this->shortcode,
+		];
+	}
+
+	/**
 	 * Concrete: Search array with residence basic data
 	 * @return array
 	 */
@@ -144,6 +160,39 @@ class Residence extends Entity {
 			'territory' => $this->territory,
 			'reference' => $this->reference,
 		];
+	}
+
+	/**
+	 * @param bool $includeQuestionAnswers
+	 * @return array
+	 */
+	public function toExportArray(bool $includeQuestionAnswers = false) : array {
+
+		$data = [
+			'ID' => $this->id,
+			'Código' => $this->shortcode,
+			'Setor' => $this->sector->id ?? '',
+			'Bairro' => $this->sector->cod_bairro ?? '',
+			'AP' => $this->sector->cod_ap ?? '',
+			'RA' => $this->sector->cod_ra ?? '',
+			'RP' => $this->sector->cod_rp ?? '',
+			'CAP' => $this->sector->cod_cap ?? '',
+			'CASDH' => $this->sector->cod_casdh ?? '',
+			'CMS' => $this->sector->cod_cms ?? '',
+			'CRAS' => $this->sector->cod_cras ?? '',
+			'CRE' => $this->sector->cod_cre ?? '',
+			'ESF' => $this->sector->cod_esf ?? '',
+			'Endereço' => $this->address,
+			'Referência' => $this->reference,
+			'Latitude' => $this->lat,
+			'Longitude' => $this->lng,
+		];
+
+		if(!$includeQuestionAnswers) return $data;
+
+		$answers = QuestionAnswer::buildAnswerGrid($this->answers);
+
+		return array_merge($data, $answers);
 	}
 
 }

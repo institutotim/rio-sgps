@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SGPS\Traits\IndexedByUUID;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Question
@@ -49,6 +50,7 @@ class Question extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
+	use LogsActivity;
 
 	const TYPE_TEXT = 'text';
 	const TYPE_NUMERIC = 'numeric';
@@ -93,6 +95,20 @@ class Question extends Model {
 		'conditions' => 'array',
 	];
 
+	protected static $logAttributes = [
+		'code',
+		'key',
+		'field_type',
+		'field_settings',
+		'field_options',
+		'entity_type',
+		'order',
+		'title',
+		'description',
+		'triggers',
+		'conditions',
+	];
+
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
@@ -131,7 +147,7 @@ class Question extends Model {
 	 */
 	public static function fetchByCode(string $questionCode) : ?Question {
 		return self::query()
-			->where('question_code', $questionCode)
+			->where('code', $questionCode)
 			->first();
 	}
 }

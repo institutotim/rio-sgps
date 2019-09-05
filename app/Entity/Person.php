@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use SGPS\Traits\HasShortCode;
 use SGPS\Traits\IndexedByUUID;
 use SGPS\Utils\Sanitizers;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Person
@@ -41,15 +42,20 @@ use SGPS\Utils\Sanitizers;
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
  *
+ * @property string $archived_reason
+ * @property string $archived_by
+ *
  * @property Sector $sector
  * @property Residence $residence
  * @property Family $family
+ * @property User $archivedBy
  */
 class Person extends Entity {
 
 	use IndexedByUUID;
 	use SoftDeletes;
 	use HasShortCode;
+	use LogsActivity;
 
 	protected $table = "persons";
 
@@ -70,15 +76,16 @@ class Person extends Entity {
 		'dob' => 'date',
 	];
 
-	// ---------------------------------------------------------------------------------------------------------------
+	protected static $logAttributes = [
+		'name',
+		'dob',
+		'nis',
+		'cpf',
+		'rg',
+		'phone_number',
+	];
 
-	/**
-	 * Relationship: person with sector
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function sector() {
-		return $this->hasOne(Sector::class, 'id', 'sector_id');
-	}
+	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * Relationship: person with residence
@@ -96,13 +103,41 @@ class Person extends Entity {
 		return $this->hasOne(Family::class, 'id', 'family_id');
 	}
 
+	/**
+	 * Relationship: user that archived this family member
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function archivedBy() {
+		return $this->hasOne(User::class, 'id', 'archived_by')->withTrashed();
+	}
+
 	// ---------------------------------------------------------------------------------------------------------------
+
+	public function scopeWithAgeUpTo($query, $age) {
+		$cutoffDate = Carbon::now()->addYears(0 - intval($age))->format('Y-m-d');
+		return $query->where('dob', '>=', $cutoffDate);
+	}
+	public function scopeWithAgeOver($query, $age) {
+		$cutoffDate = Carbon::now()->addYears(0 - intval($age))->format('Y-m-d');
+		return $query->where('dob', '<', $cutoffDate);
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Checks if the person has the age information available
+	 * @return bool
+	 */
+	public function hasAgeAvailable() : bool {
+		return $this->dob !== null && $this->dob->isPast();
+	}
 
 	/**
 	 * Gets the person's age, based on the given date of birth.
 	 * @return int
 	 */
 	public function getAge() {
+		if(!$this->dob) return null;
 		return $this->dob->diffInYears();
 	}
 
@@ -111,7 +146,34 @@ class Person extends Entity {
 	 * @return int
 	 */
 	public function getAgeInMonths() {
+		if(!$this->dob) return null;
 		return $this->dob->diffInMonths();
+	}
+
+	/**
+	 * Checks if this person has been archived.
+	 * @return bool
+	 */
+	public function isArchived() : bool {
+		return $this->deleted_at !== null && $this->archived_reason !== null;
+	}
+
+	/**
+	 * Archives the person profile.
+	 * @param string $reason
+	 * @throws \Exception
+	 */
+	public function archive(string $reason) : void {
+
+		$this->archived_reason = $reason;
+		$this->archived_by = auth()->user()->id;
+		$this->save();
+
+		$this->delete(); // soft-deletes
+
+		$this->assignments()->delete();
+		$this->attributedFlags()->delete();
+
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -149,6 +211,19 @@ class Person extends Entity {
 	}
 
 	/**
+	 * Abstract: Builds a basic JSON for entity identification
+	 * @return array
+	 */
+	public function toBasicJson(): array {
+		return [
+			'type' => $this->getEntityType(),
+			'id' => $this->getEntityID(),
+			'name' => $this->name,
+			'shortcode' => $this->shortcode,
+		];
+	}
+
+	/**
 	 * Concrete: Search array with person basic data
 	 * @return array
 	 */
@@ -165,5 +240,42 @@ class Person extends Entity {
 			'rg' => $this->rg,
 			'phone_number' => $this->phone_number,
 		];
+	}
+
+	/**
+	 * @param bool $includeQuestionAnswers
+	 * @return array
+	 */
+	public function toExportArray(bool $includeQuestionAnswers = false) : array {
+
+		$data = [
+			'ID' => $this->id,
+			'Código' => $this->shortcode,
+			'Código Família' => $this->family->shortcode ?? '',
+			'Código Residência' => $this->residence->shortcode ?? '',
+			'Nome' => $this->name,
+			'Data de Nascimento' => $this->dob ? $this->dob->toDateTimeString() : null,
+			'Setor' => $this->sector->id ?? '',
+			'Bairro' => $this->sector->cod_bairro ?? '',
+			'AP' => $this->sector->cod_ap ?? '',
+			'RA' => $this->sector->cod_ra ?? '',
+			'RP' => $this->sector->cod_rp ?? '',
+			'CAP' => $this->sector->cod_cap ?? '',
+			'CASDH' => $this->sector->cod_casdh ?? '',
+			'CMS' => $this->sector->cod_cms ?? '',
+			'CRAS' => $this->sector->cod_cras ?? '',
+			'CRE' => $this->sector->cod_cre ?? '',
+			'ESF' => $this->sector->cod_esf ?? '',
+			'Endereço' => $this->residence->address ?? '',
+			'Referência' => $this->residence->reference ?? '',
+			'Latitude' => $this->residence->lat ?? '',
+			'Longitude' => $this->residence->lng ?? '',
+		];
+
+		if(!$includeQuestionAnswers) return $data;
+
+		$answers = QuestionAnswer::buildAnswerGrid($this->answers);
+
+		return array_merge($data, $answers);
 	}
 }

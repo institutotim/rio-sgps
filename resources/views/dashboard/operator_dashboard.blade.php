@@ -19,7 +19,7 @@
 									<div class="col-md-6">
 										<dl>
 											<dt><i class="fa fa-cog"></i> Tipo:</dt>
-											<dd><strong class="badge badge-primary">{{$user->type ?? 'Operador'}}</strong></dd>
+											<dd><strong class="badge badge-primary">{{trans('user.level.' . $user->level)}}</strong></dd>
 											<dt><i class="fa fa-users"></i> Grupos:</dt>
 											<dd>
 												@if(sizeof($user->groups) > 0)
@@ -69,6 +69,7 @@
 										<thead>
 										<tr>
 											<th>Cód.</th>
+											<th>Tipo</th>
 											<th>Endereço</th>
 											<th>Responsável</th>
 										</tr>
@@ -139,6 +140,29 @@
 						</b-card>
 
 					</div>
+
+				</div>
+
+				<br />
+
+				<div class="row">
+
+
+					<div class="col-md-12">
+
+						<div class="card">
+							<div class="card-header">
+								<strong><i class="fa fa-chart"></i> Métricas do sistema</strong>
+							</div>
+							<div class="card-body">
+
+								<dashboard-metrics :metrics-to-view="{{json_encode(auth()->user()->getMetricsToView()->toArray())}}"></dashboard-metrics>
+
+							</div>
+						</div>
+
+					</div>
+
 				</div>
 
 			</div>

@@ -15,22 +15,29 @@ namespace SGPS\Http\Controllers\Admin;
 
 
 use SGPS\Entity\Question;
+use SGPS\Entity\QuestionCategory;
 use SGPS\Http\Controllers\Controller;
 
 class QuestionsController extends Controller {
 
 	public function index() {
-		$questions = Question::query()->with(['categories'])->paginate(24);
+		$questions = Question::query()
+			->with(['categories'])
+			->orderBy('code', 'ASC')
+			->paginate(128);
+
 		return view('admin.questions_index', compact('questions'));
 	}
 
 	public function create() {
 		$question = new Question();
-		return view('admin.questions_edit', compact('question'));
+		$categories = QuestionCategory::all();
+		return view('admin.questions_edit', compact('question', 'categories'));
 	}
 
 	public function show(Question $question) {
-		return view('admin.questions_edit', compact('question'));
+		$categories = QuestionCategory::all();
+		return view('admin.questions_edit', compact('question', 'categories'));
 	}
 
 	public function save(?Question $question = null) {
@@ -43,7 +50,10 @@ class QuestionsController extends Controller {
 		$question->triggers = json_decode(request('triggers'));
 		$question->save();
 
-		return redirect()->route('admin.questions.show', [$question->id]);
+		$question->categories()->sync(request('categories', []));
+
+		return redirect()->route('admin.questions.show', [$question->id])
+			->with('success', 'record_updated');
 	}
 
 	public function destroy(Question $question) {

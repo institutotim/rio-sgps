@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use SGPS\Services\UserAssignmentService;
 use SGPS\Traits\IndexedByUUID;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class UserAssignment
@@ -38,12 +39,13 @@ use SGPS\Traits\IndexedByUUID;
 class UserAssignment extends Model {
 
 	use IndexedByUUID;
+	use LogsActivity;
 
 	const TYPE_WATCHING = 'watching';
 	const TYPE_ACTING = 'acting';
 	const TYPE_CREATOR = 'creator';
 
-	const TYPES = [self::TYPE_WATCHING, self::TYPE_ACTING, self::TYPE_ACTING];
+	const TYPES = [self::TYPE_WATCHING, self::TYPE_ACTING, self::TYPE_CREATOR];
 
 	protected $table = "user_assignments";
 	protected $with = ['user'];
@@ -61,7 +63,7 @@ class UserAssignment extends Model {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function user() {
-		return $this->hasOne(User::class, 'id', 'user_id');
+		return $this->hasOne(User::class, 'id', 'user_id')->withTrashed();
 	}
 
 	/**

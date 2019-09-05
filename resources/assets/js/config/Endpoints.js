@@ -3,6 +3,8 @@ export default {
 	Comments: {
 		FetchThread: 'api/comments/thread/@type@/@id@',
 		PostComment: 'api/comments/thread/@type@/@id@',
+		DeleteComment: 'api/comments/comment/@id@',
+		UpdateComment: 'api/comments/comment/@id@',
 	},
 
 	Questions: {
@@ -12,8 +14,19 @@ export default {
 		FetchQuestionsByEntity: 'api/questions/@category@/@type@/@id@',
 	},
 
+	Export: {
+		Residences: 'api/export/residences.xls',
+		Persons: 'api/export/persons.xls',
+		Families: 'api/export/families.xls',
+	},
+
 	Family: {
 		AddMember: 'api/families/@id@/add_member',
+		ArchiveMember: 'api/families/@family_id@/members/@member_id@/archive',
+	},
+
+	ActivityLog: {
+		FetchThread: 'api/activity_log/@entity@/entries'
 	},
 
 	Flags: {
@@ -27,6 +40,10 @@ export default {
 		FetchAssignableUsers: 'api/assignments/@entity@/assignable_users',
 		AssignUserToEntity: 'api/assignments/@entity@/assign',
 		UnassignUserFromEntity: 'api/assignments/@entity@/unassign',
+	},
+
+	Reports: {
+		AllMetrics: 'api/reports/all_metrics',
 	}
 
 }

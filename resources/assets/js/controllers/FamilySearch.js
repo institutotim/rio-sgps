@@ -1,7 +1,9 @@
 import { create } from 'vue-modal-dialogs'
 import FilterFlagsModal from '../modals/FlagsFilterModal';
+import ExportModal from '../modals/ExportModal';
 
 const selectFilterFlags = create(FilterFlagsModal, 'selectedFlags');
+const exportResults = create(ExportModal, 'filters');
 
 export default {
 
@@ -18,10 +20,16 @@ export default {
 	},
 
 	methods: {
+
+		exportResults: async function() {
+			await exportResults(this.filters);
+		},
+
 		setFilter: function (filterName, value) {
 			this.filters[filterName] = value;
 			this.filters = Object.assign({}, this.filters);
-			this.doSearch();
+
+			this.$nextTick(() => this.doSearch());
 		},
 
 		selectFlagsToFilter: async function() {
@@ -35,6 +43,8 @@ export default {
 
 		doSearch: function() {
 			this.isLoading = true;
+			this.$forceUpdate();
+
 			this.$nextTick(() => this.$refs.filterForm.submit());
 		}
 	}

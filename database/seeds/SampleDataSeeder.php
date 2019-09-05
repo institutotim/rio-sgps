@@ -31,7 +31,7 @@ class SampleDataSeeder extends \Illuminate\Database\Seeder {
 				return factory(Equipment::class, 5)->create(['type' => $type]);
 			});
 
-		$sectors = factory(Sector::class, 15)
+		$sectors = factory(Sector::class, 3)
 			->create()
 			->each(function($sector) use ($equipmentsPerType, $faker) { /* @var $sector Sector */
 
@@ -43,11 +43,13 @@ class SampleDataSeeder extends \Illuminate\Database\Seeder {
 			})
 			->pluck('id');
 
-		$residences = factory(Residence::class, 30)
+		$residences = factory(Residence::class, 5)
 			->create(['sector_id' => $faker->randomElement($sectors)])
 			->each(function (Residence $residence) use ($faker) {
 
-				$residence->_families = factory(Family::class, 1)->create([
+				$numFamilies = rand(0, 100) > 75 ? 2 : 1;
+
+				$residence->_families = factory(Family::class, $numFamilies)->create([
 					'sector_id' => $residence->sector_id,
 					'residence_id' => $residence->id,
 				])->each(function (Family $family) use ($residence) {
@@ -90,7 +92,7 @@ class SampleDataSeeder extends \Illuminate\Database\Seeder {
 						break;
 
 					case 'person':
-						$residences->random(rand(4, 8))->each(function (Residence $residence) use ($faker, $flag) {
+						$residences->each(function (Residence $residence) use ($faker, $flag) {
 							$residence->_families->random(rand(1, sizeof($residence->_families)))
 								->each(function (Family $family) use ($faker, $flag) {
 

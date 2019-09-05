@@ -15,7 +15,7 @@ namespace SGPS\Console\Commands\Maintenance;
 
 
 use Illuminate\Console\Command;
-use SGPS\Constants\Role;
+use SGPS\Constants\UserLevel;
 use SGPS\Entity\User;
 
 class CreateAdminAccount extends Command {
@@ -28,13 +28,12 @@ class CreateAdminAccount extends Command {
 		$email = $this->ask("E-mail", "dev@lqdi.net");
 		$password = $this->ask("Password", "demo");
 
-		$user = User::create([
-			'name' => $name,
-			'email' => $email,
-			'password' => password_hash($password, PASSWORD_DEFAULT),
-		]); /* @var user User */
-
-		$user->assignRole(Role::ADMIN);
+		$user = new User();
+		$user->level = UserLevel::ADMIN;
+		$user->name = $name;
+		$user->email = $email;
+		$user->setPassword($password);
+		$user->save();
 
 		$this->info("User created - ID: {$user->id}");
 

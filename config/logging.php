@@ -35,8 +35,17 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'bugsnag'],
         ],
+
+	    'development' => [
+	    	'driver' => 'stack',
+		    'channels' => ['daily', 'stdout'],
+	    ],
+
+	    'bugsnag' => [
+		    'driver' => 'bugsnag',
+	    ],
 
         'single' => [
             'driver' => 'single',
@@ -66,6 +75,14 @@ return [
                 'stream' => 'php://stderr',
             ],
         ],
+
+	    'stdout' => [
+		    'driver'  => 'monolog',
+		    'handler' => StreamHandler::class,
+		    'with'    => [
+			    'stream' => 'php://stdout',
+		    ],
+	    ],
 
         'syslog' => [
             'driver' => 'syslog',

@@ -19,10 +19,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
+use SGPS\Services\UserAssignmentService;
 use SGPS\Traits\HasShortCode;
 use SGPS\Traits\IndexedByUUID;
 use SGPS\Utils\Sanitizers;
 use SGPS\Utils\Shortcode;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Family
@@ -30,6 +32,7 @@ use SGPS\Utils\Shortcode;
  *
  * @property string $id
  * @property string $shortcode
+ * @property bool $is_alert
  * @property string $sector_id
  * @property string $residence_id
  * @property string $person_in_charge_id
@@ -37,7 +40,9 @@ use SGPS\Utils\Shortcode;
  * @property integer $ipm_risk_factor
  * @property string $visit_status
  * @property integer $visit_attempt
+ * @property string $case_opened_by
  * @property Carbon|null $visit_last
+ * @property Carbon|null $opened_at
  * @property string $gis_global_id
  *
  * @property Carbon $created_at
@@ -48,6 +53,7 @@ use SGPS\Utils\Shortcode;
  * @property Residence $residence
  * @property Person $personInCharge
  * @property Person[]|Collection $members
+ * @property User|null $caseOpenedBy
  */
 class Family extends Entity {
 
@@ -55,10 +61,17 @@ class Family extends Entity {
 	use SoftDeletes;
 	use HasShortCode;
 	use Searchable;
+	use LogsActivity;
+
+	const VISIT_PENDING_AGENT = 'pending_agent'; // triggers first visit attempt
+	const VISIT_DELIVERED = 'delivered'; // "snoozed" until is_alert is false or deadline passes
+	const VISIT_LATE_TO_CRAS = 'late_to_cras'; // triggers second visit attempt
+	const VISIT_PENDING_TECHNICAL_VISIT = 'pending_technical_visit'; // triggers technical visit
 
 	protected $table = 'families';
 
 	protected $fillable = [
+		'is_alert',
 		'sector_id',
 		'residence_id',
 		'person_in_charge_id',
@@ -67,25 +80,31 @@ class Family extends Entity {
 		'visit_status',
 		'visit_attempt',
 		'visit_last',
+		'case_opened_by',
+		'opened_at',
 		'gis_global_id',
 	];
 
 	protected $casts = [
+		'is_alert' => 'boolean',
 		'ipm_rate' => 'float',
 		'ipm_risk_factor' => 'integer',
 		'visit_attempt' => 'integer',
 		'visit_last' => 'date',
+		'opened_at' => 'datetime',
+	];
+
+	protected static $logAttributes = [
+		'is_alert',
+		'person_in_charge_id',
+		'ipm_rate',
+		'ipm_risk_factor',
+		'visit_status',
+		'visit_attempt',
+		'visit_last',
 	];
 
 	// ---------------------------------------------------------------------------------------------------------------
-
-	/**
-	 * Relationship: family with sector
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function sector() {
-		return $this->hasOne(Sector::class, 'id', 'sector_id');
-	}
 
 	/**
 	 * Relationship: family with residence
@@ -108,7 +127,15 @@ class Family extends Entity {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function members() {
-		return $this->hasMany(Person::class, 'family_id', 'id');
+		return $this->hasMany(Person::class, 'family_id', 'id')->withTrashed();
+	}
+
+	/**
+	 * Relationship: user that opened the case
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function caseOpenedBy() {
+		return $this->hasOne(User::class, 'id', 'case_opened_by')->withTrashed();
 	}
 
 	/**
@@ -135,6 +162,70 @@ class Family extends Entity {
 		return $this->hasManyThrough(Flag::class, FlagAttribution::class, 'residence_id', 'id', 'residence_id', 'flag_id')
 			->where('flag_attributions.is_completed', false)
 			->where('flag_attributions.is_cancelled', false);
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------
+
+	public function scopeNotAlerts($query) {
+		return $query->where('is_alert', false);
+	}
+
+	public function scopeOnlyAlerts($query) {
+		return $query->where('is_alert', true);
+	}
+
+	public function scopeAlreadyHadVisit($query) {
+		return $query->where('visit_status', '!=', self::VISIT_PENDING_AGENT);
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Marks the family referral as delivered.
+	 * Updates the "date of last visit" date.
+	 */
+	public function markAsDelivered() {
+		$this->visit_status = self::VISIT_DELIVERED;
+		$this->visit_last = Carbon::now();
+		$this->save();
+	}
+
+	/**
+	 * Marks the family visit status as "pending" once again.
+	 * If the visit attempt was the first (visit_attempt = 1), status goes to LATE_TO_CRAS.
+	 * If the visit attempt was the second (visit_attempt = 2), status goes to PENDING_TECHNICAL_VISIT.
+	 * Increases the visit attempt by 1 after the above validation.
+	 */
+	public function returnToPending() {
+		$this->visit_status = ($this->visit_attempt >= 2)
+			? self::VISIT_PENDING_TECHNICAL_VISIT
+			: self::VISIT_LATE_TO_CRAS;
+		$this->visit_attempt += 1;
+		$this->save();
+	}
+
+	/**
+	 * Marks the family case as open, removing it from the alerts list.
+	 * Will update the "case opened at" date.
+	 * If a user is given as parameter, they will be set as the user who opened the case.
+	 * @param null|User $user
+	 */
+	public function openCase(?User $user = null) {
+		$this->is_alert = false;
+		$this->opened_at = Carbon::now();
+
+
+		if($user) {
+			$this->case_opened_by = $user->id;
+		}
+
+		$this->save();
+
+		if(!$user) return;
+
+		app(UserAssignmentService::class)
+			->assignUserToEntity($user, $this, UserAssignment::TYPE_CREATOR);
+
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -172,6 +263,19 @@ class Family extends Entity {
 	}
 
 	/**
+	 * Concrete: Builds a basic JSON for entity identification
+	 * @return array
+	 */
+	public function toBasicJson(): array {
+		return [
+			'type' => $this->getEntityType(),
+			'id' => $this->getEntityID(),
+			'name' => $this->personInCharge->name ?? '',
+			'shortcode' => $this->shortcode,
+		];
+	}
+
+	/**
 	 * Concrete: Search array with family, residence and members infos for full-text search
 	 * @return array
 	 */
@@ -187,5 +291,82 @@ class Family extends Entity {
 				return $member->toSearchableArray();
 			}),
 		]);
+	}
+
+	/**
+	 * @param bool $includeQuestionAnswers
+	 * @return array
+	 */
+	public function toExportArray(bool $includeQuestionAnswers = false) : array {
+
+		$data = [
+			'ID' => $this->id,
+			'Código' => $this->shortcode,
+			'Código Residência' => $this->residence->shortcode ?? '',
+			'Responsável' => $this->personInCharge->name ?? '',
+			'Setor' => $this->sector->id ?? '',
+			'Bairro' => $this->sector->cod_bairro ?? '',
+			'AP' => $this->sector->cod_ap ?? '',
+			'RA' => $this->sector->cod_ra ?? '',
+			'RP' => $this->sector->cod_rp ?? '',
+			'CAP' => $this->sector->cod_cap ?? '',
+			'CASDH' => $this->sector->cod_casdh ?? '',
+			'CMS' => $this->sector->cod_cms ?? '',
+			'CRAS' => $this->sector->cod_cras ?? '',
+			'CRE' => $this->sector->cod_cre ?? '',
+			'ESF' => $this->sector->cod_esf ?? '',
+			'Endereço' => $this->residence->address ?? '',
+			'Referência' => $this->residence->reference ?? '',
+			'Latitude' => $this->residence->lat ?? '',
+			'Longitude' => $this->residence->lng ?? '',
+		];
+
+		if(!$includeQuestionAnswers) return $data;
+
+		$answers = QuestionAnswer::buildAnswerGrid($this->answers);
+
+		return array_merge($data, $answers);
+	}
+
+	/**
+	 * Returns a collection with all entities linked to this one, including itself as first item.
+	 *
+	 * @return \Illuminate\Support\Collection
+	 */
+	public function fetchLinkedEntities() {
+		$entities = collect([$this, $this->residence]);
+
+		$this->members->each(function($member) use ($entities) {
+			$entities->push($member);
+		});
+
+		return $entities;
+	}
+
+	/**
+	 * Fetches a family by its shortcode
+	 * @param string $shortcode
+	 * @return null|Family|Model
+	 */
+	public static function fetchByShortcode(string $shortcode) : ?Family {
+		return self::query()
+			->where('shortcode', $shortcode)
+			->first();
+	}
+
+	/**
+	 * Fetches all alerts which the deadline is past to show up at the CRAS
+	 */
+	public static function fetchAlertsLateToCRAS() {
+
+		$cutoffDate = Carbon::now()
+			->addDays(-30)
+			->format('Y-m-d');
+
+		return self::query()
+			->onlyAlerts()
+			->where('visit_status', self::VISIT_DELIVERED)
+			->where('visit_last', '<=', $cutoffDate)
+			->get();
 	}
 }

@@ -40,7 +40,7 @@ class EntityFieldLinkService {
 			if(!$entity->isFillable($fieldName)) continue;
 
 			// Values are the same
-			if(strval($answers[$questionCode]) === strval($previousAnswers[$questionCode])) continue;
+			if(isset($previousAnswers[$questionCode]) && strval($answers[$questionCode]) === strval($previousAnswers[$questionCode])) continue;
 
 			// Sets the entity field
 			$entity->$fieldName = $answers[$questionCode];
@@ -49,7 +49,9 @@ class EntityFieldLinkService {
 
 		}
 
-		$entity->save();
+		if($hasChanges) {
+			$entity->save();
+		}
 
 		return $hasChanges;
 	}

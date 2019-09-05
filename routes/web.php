@@ -2,11 +2,13 @@
 Route::group([], function() {
 	Route::get('/login', 'Web\AuthController@index')->name('auth.index');
 	Route::post('/login', 'Web\AuthController@login')->name('auth.login');
+	Route::post('/login/with_cerberus', 'Web\AuthController@loginWithCerberus')->name('auth.login.with_cerberus');
 	Route::post('/logout', 'Web\AuthController@logout')->name('auth.logout');
 });
 
 Route::group(['middleware' => 'auth'], function() {
 
+	Route::get('/welcome', 'Web\DashboardController@post_login')->name('dashboard.post_login');
 	Route::get('/', 'Web\DashboardController@index')->name('dashboard.index');
 
 	Route::get('/families', 'Web\FamiliesController@index')->name('families.index');
@@ -15,13 +17,15 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::post('/families/{family}', 'Web\FamiliesController@update')->name('families.update');
 
 	Route::get('/alerts', 'Web\AlertsController@index')->name('alerts.index');
+	Route::get('/alerts/print', 'Web\AlertsController@print_all_referrals')->name('alerts.print_all_referrals');
 	Route::get('/alerts/{family}', 'Web\AlertsController@show')->name('alerts.show');
+	Route::post('/alerts/{family}/open', 'Web\AlertsController@open_case')->name('alerts.open_case');
+	Route::post('/alerts/{family}/mark_as_delivered', 'Web\AlertsController@mark_as_delivered')->name('alerts.mark_as_delivered');
+	Route::get('/alerts/{family}/print', 'Web\AlertsController@print_referral')->name('alerts.print_referral');
 
 	Route::get('/reports', 'Web\AlertsController@index')->name('reports.index');
 
-	Route::get('/print/sample', 'Web\PrintController@sample_print')->name('print.sample_print');
-
-	Route::group(['prefix' => 'admin'], function() { // TODO: middleware to filter out admins
+	Route::group(['prefix' => 'admin', 'middleware' => 'level:admin'], function() {
 		Route::get('/', 'Admin\DashboardController@index')->name('admin.dashboard.index');
 
 		Route::get('/admin/users', 'Admin\UsersController@index')->name('admin.users.index');
@@ -54,9 +58,10 @@ Route::group(['middleware' => 'auth'], function() {
 		Route::post('/admin/equipments/{equipment?}', 'Admin\EquipmentsController@save')->name('admin.equipments.save');
 		Route::delete('/admin/equipments/{equipment}', 'Admin\EquipmentsController@destroy')->name('admin.equipments.destroy');
 
-		Route::get('/admin/settings', 'Admin\SettingsController@index')->name('admin.settings.index');
+		Route::get('/admin/import', 'Admin\ImportsController@dashboard')->name('admin.imports.dashboard');
+		Route::post('/admin/import/survey_csv', 'Admin\ImportsController@import_survey_csv')->name('admin.imports.survey_csv');
+		Route::post('/admin/import/geography_csv', 'Admin\ImportsController@import_geography_csv')->name('admin.imports.geography_csv');
 	});
-
 
 });
 

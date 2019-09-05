@@ -15,9 +15,11 @@ namespace SGPS\Entity;
 
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use SGPS\Traits\IndexedByUUID;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class QuestionAnswer
@@ -46,6 +48,7 @@ class QuestionAnswer extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
+	use LogsActivity;
 
 	protected $table = 'question_answers';
 
@@ -67,6 +70,13 @@ class QuestionAnswer extends Model {
 		'value_integer' => 'integer',
 	];
 
+	protected static $logAttributes = [
+		'value_string',
+		'value_integer',
+		'value_json',
+		'is_filled',
+	];
+
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
@@ -83,6 +93,12 @@ class QuestionAnswer extends Model {
 	 */
 	public function entity() {
 		return $this->morphTo('entity');
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------
+
+	public function scopeValueEqualsTo($query, $questionType, $expectedValue) {
+		return $query->where(self::getAnswerValueField($questionType), $expectedValue);
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -220,6 +236,63 @@ class QuestionAnswer extends Model {
 	public static function setAnswerForEntity(Entity $entity, Question $question, $answerValue) : void {
 		$answer = self::fetchOrCreateForEntityQuestion($entity, $question);
 		$answer->updateValue($answerValue);
+	}
+
+	/**
+	 * Forcefully creates the answer value to a specific entity+question pair.
+	 * Will appropriately serialize and store the answer in the right field.
+	 * Will persist the change on the database.
+	 * @param Entity $entity The targeted entity
+	 * @param Question $question The question the answer regards to
+	 * @param mixed $answerValue The value of the answer
+	 */
+	public static function forceCreate(Entity $entity, Question $question, $answerValue) : void {
+		$answer = QuestionAnswer::create([
+			'entity_type' => $entity->getEntityType(),
+			'entity_id' => $entity->getEntityID(),
+			'question_id' => $question->id,
+			'question_code' => $question->code,
+			'type' => $question->field_type,
+		]);
+
+		$answer->updateValue($answerValue);
+	}
+
+	/**
+	 * Builds an associative array keyed by question code
+	 * @param Collection $answers
+	 * @return array
+	 */
+	public static function buildAnswerGrid(Collection $answers) : array {
+		return $answers
+			->keyBy('question_code')
+			->map(function ($answer) { /* @var $answer \SGPS\Entity\QuestionAnswer */
+				return $answer->getValue();
+			})
+			->toArray();
+	}
+
+	/**
+	 * Gets the name of the field where the answer value is contained, given a specific question type.
+	 * @param string $questionType The question type. @see Question::TYPE_*
+	 * @return string
+	 */
+	public static function getAnswerValueField($questionType) : string {
+		switch($questionType) {
+			case Question::TYPE_TEXT:
+			case Question::TYPE_NUMERIC:
+			case Question::TYPE_SELECT_ONE:
+			case Question::TYPE_DATE:
+				return 'value_string';
+			case Question::TYPE_NUMBER:
+			case Question::TYPE_YESNO:
+			case Question::TYPE_YESNO_NULLABLE:
+				return 'value_integer';
+			case Question::TYPE_SELECT_MANY:
+			default:
+				return 'value_json';
+		}
+
 	}
 
 }

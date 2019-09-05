@@ -17,23 +17,27 @@ namespace SGPS\Http\Controllers\Web;
 use SGPS\Entity\Family;
 use SGPS\Entity\Flag;
 use SGPS\Entity\Residence;
+use SGPS\Entity\Sector;
 use SGPS\Http\Controllers\Controller;
 use SGPS\Services\FamilySearchService;
+use SGPS\Utils\FamilyPermissionGrid;
 
 class FamiliesController extends Controller {
 
 	public function index(FamilySearchService $service) {
 
-		$defaultFilters = [
-			'status' => 'ongoing',
-			'assigned_to' => 'all',
-			'flags' => [],
-			'q' => '',
-		];
+		$filters = array_merge($service->defaultCaseFilters, request('filters', []));
 
-		$filters = request('filters', $defaultFilters);
+		$filterOptions = cache()->remember('family_filter_options', 60, function () {
+			return [
+				'sector_cre' => Sector::fetchAvailableGroupingCodes('cod_cre'),
+				'sector_casdh' => Sector::fetchAvailableGroupingCodes('cod_casdh'),
+				'sector_cap' => Sector::fetchAvailableGroupingCodes('cod_cap'),
+			];
+		});
 
 		$query = Family::query()
+			->notAlerts()
 			->with(['residence', 'personInCharge', 'allFlagAttributions', 'allActiveFlags'])
 			->orderBy('created_at', 'desc');
 
@@ -41,7 +45,7 @@ class FamiliesController extends Controller {
 
 		$families = $query->paginate(24);
 
-		return view('families.families_index', compact('families', 'filters'));
+		return view('families.families_index', compact('families', 'filters', 'filterOptions'));
 
 	}
 
@@ -52,9 +56,21 @@ class FamiliesController extends Controller {
 
 	public function show(Family $family) {
 
-		$family->load(['members.flags', 'residence.flags', 'personInCharge', 'allFlagAttributions']);
+		$this->currentUser->load('assignments');
 
-		return view('families.families_view', compact('family'));
+		$family->load([
+			'flags.groups',
+			'members.flags.groups',
+			'residence.flags.groups',
+			'sector.equipments',
+			'personInCharge',
+			'allFlagAttributions',
+			'caseOpenedBy'
+		]);
+
+		$permissions = FamilyPermissionGrid::build($this->currentUser, $family, $this->permissions);
+
+		return view('families.families_view', compact('family', 'permissions'));
 
 	}
 
