@@ -48,7 +48,6 @@ class FamilyExport implements FromCollection, WithHeadings, WithMapping {
 	];
 
 	private $questionCodes = [];
-
 	private $headings = [];
 
 	public function __construct(array $filters = [], FamilySearchService $service) {
@@ -63,10 +62,11 @@ class FamilyExport implements FromCollection, WithHeadings, WithMapping {
 		$this->results = $families->map(function ($family) { /* @var $family \SGPS\Entity\Family */
 			return collect($family->toExportArray(true));
 		});
-
-		$this->questionCodes = Question::query()
+		$queryQuestions = Question::select(\DB::raw("CONCAT(CONCAT(code, '||'),title) AS code"))
 			->where('entity_type', 'family')
-			->get(['code'])
+			->get();
+
+		$this->questionCodes = $queryQuestions
 			->pluck('code')
 			->toArray();
 
@@ -81,7 +81,8 @@ class FamilyExport implements FromCollection, WithHeadings, WithMapping {
 
 		return collect($this->headings)
 			->map(function ($key) use ($family) {
-				return $family[$key] ?? '';
+				$tmpkey = explode("||", $key)[0];
+				return $family[$tmpkey] ?? '';
 			})
 			->toArray();
 	}
