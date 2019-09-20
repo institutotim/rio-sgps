@@ -178,8 +178,11 @@
 				if(!this.canEdit) return;
 
 				let hasChangedProfile = false;
+				if(this.answers.CE50 && !checkConditions([["CE53","age_gt",18]], this.answers)){
+					Dialogs.alert('Ocorreu um erro: PESSOA RESPONSÁVEL deve ser maior de idade');
+					return;
+				}
 				this.isLoading = true;
-
 				return axios
 					.put(
 						API.url(Endpoints.Questions.SaveAnswers, {type: this.entityType, id: this.entityId}),
