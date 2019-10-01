@@ -11,7 +11,7 @@
 		<div class="col-md-4">
 			<label class="detail__label">ETIQUETAS</label>
 			<div>
-				@foreach($residence->flags as $flag)
+				@foreach($residence->activeFlags as $flag)
 					<span class="badge badge-secondary">{{$flag->name}}</span>
 				@endforeach
 			</div>

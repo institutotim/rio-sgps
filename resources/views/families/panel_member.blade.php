@@ -33,7 +33,7 @@
 			<div class="col-md-4">
 				<label class="detail__label">ETIQUETAS</label>
 				<div>
-					@foreach($member->flags as $flag)
+					@foreach($member->activeFlags as $flag)
 						<span class="badge badge-secondary">{{$flag->name}}</span>
 					@endforeach
 				</div>
