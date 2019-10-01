@@ -122,6 +122,23 @@ class FamilyImportService {
 
 			logger("[FamilyImportService.importFamily] Imported #{$family->id} \t family \t {$family->shortcode}");
 
+			try{
+				$users = DB::table('users')
+	            ->join('user_equipments', 'users.id', '=', 'user_equipments.user_id')
+	            ->join('sector_equipments', 'user_equipments.equipment_id', '=', 'sector_equipments.equipment_id')
+	            ->join('families', 'sector_equipments.sector_id', '=', 'families.sector_id')
+	            ->where('families.id', $family->id)->pluck('users.id');
+
+	            foreach ($users as $u) {
+					$user = User::findOrFail($u);
+
+					$userAssignment = new UserAssignment();
+					$userAssignment->assignUserToEntity($user, $family, 'acting');
+
+					logger("[FamilyImportService.importFamily] Imported #{$family->id} \t assigned_user \t {$user->id}");
+				}
+			} catch(Exception ex){}
+
 			$importJob->raiseCounter('num_families_imported');
 
 		} else {
