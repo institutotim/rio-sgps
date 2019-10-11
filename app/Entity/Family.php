@@ -228,6 +228,23 @@ class Family extends Entity {
 
 	}
 
+	/** 
+	 * Set the visit justification
+	 * @param String $justification
+	*/
+	public function markAsJustified($justification){
+		$this->is_justified = true;
+		$this->justification = $justification;
+		$this->save();
+	}
+
+	public function removeJustification(){
+		$this->is_justified = false;
+		$this->justification = NULL;
+		$this->save();
+	}
+
+
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**

@@ -64,4 +64,27 @@ class FamiliesController extends Controller {
 
 	}
 
+	public function justify(Family $family){
+		
+		if(!$family->is_alert) {
+			return redirect()->route('alerts.index')->with('error', 'family_not_alert');
+		}
+
+		if(!$this->permissions->canEditEntity($this->currentUser, $family)) {
+			return $this->api_failure('user_cannot_edit_entity');
+		}
+		
+		$justification = request('justification');
+
+		if($justification){
+			$family->markAsJustified($justification);
+			$this->activityLog->writeToFamilyLog($family, 'alert_marked_as_justified', ['justification' => $family->justification]);
+			return $this->api_success();
+		}
+		
+		$family->removeJustification();
+		$this->activityLog->writeToFamilyLog($family, 'alert_justification_removed');
+		return $this->api_success();
+	}
+
 }
