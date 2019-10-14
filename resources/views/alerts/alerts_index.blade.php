@@ -5,6 +5,7 @@
 			is="family-search"
 			inline-template
 			:active-filters="{{json_encode($filters)}}"
+            :alerts-data="{{json_encode($alerts)}}.data"
 	>
 		<div>
 			<div class="container">
@@ -85,7 +86,7 @@
 								<td colspan="6" class="text-center text-secondary py-3">Nenhum alerta recebido ainda através da busca ativa. <br/> Novos alertas aparecerão sempre que forem importados arquivos do Survey.</td>
 							</tr>
 						@else
-							@foreach($alerts as $alert) @php /* @var $alert \SGPS\Entity\Family */ @endphp
+							@foreach($alerts as $key=>$alert) @php /* @var $alert \SGPS\Entity\Family */ @endphp
 							<tr>
 								<td>{{$alert->shortcode}}</td>
 								<td>{{$alert->residence->address}}</td>
@@ -101,7 +102,10 @@
 									@elseif($alert->visit_status === \SGPS\Entity\Family::VISIT_PENDING_TECHNICAL_VISIT)
 										<div class="badge badge-danger">Aguardando Visita Técnica</div>
 									@endif
-								</td>
+                                    @if(in_array($alert->visit_status, [\SGPS\Entity\Family::VISIT_PENDING_AGENT, \SGPS\Entity\Family::VISIT_LATE_TO_CRAS]))
+                                        <div v-b-tooltip.hover :title="alerts[{{$key}}].justification" class="badge badge-secondary" v-if="alerts[{{$key}}] != null && alerts[{{$key}}].is_justified" @click="showJustification({{$key}})" style="cursor: pointer;display: table-cell">Justificado</div>
+                                    @endif
+                                </td>
 								<td>
 
 									<a target="_blank" href="{{route('families.show', [$alert->id])}}" class="btn btn-sm btn-light" v-b-tooltip title="Ver ficha do caso"><i class="fa fa-eye"></i></a>
@@ -119,6 +123,10 @@
 											<button type="submit" class="btn btn-sm btn-light" v-b-tooltip title="Marcar encaminhamento como entregue"><i class="fa fa-check"></i></button>
 										</form>
 									@endif
+
+                                    @if($permissions->canEditEntity(auth()->user(), $alert) && in_array($alert->visit_status, [\SGPS\Entity\Family::VISIT_PENDING_AGENT, \SGPS\Entity\Family::VISIT_LATE_TO_CRAS]))
+                                        <button class="btn btn-sm btn-light" v-b-tooltip title="justificar" v-if="alerts[{{$key}}] != null && !alerts[{{$key}}].is_justified" @click="justify({{$key}})"><i class="fa fa-exclamation-circle"></i></button>
+                                    @endif
 
 									<a target="_blank" href="{{route('alerts.print_referral', [$alert->id])}}" class="btn btn-sm btn-light" v-b-tooltip title="Imprimir encaminhamento"><i class="fa fa-print"></i></a>
 

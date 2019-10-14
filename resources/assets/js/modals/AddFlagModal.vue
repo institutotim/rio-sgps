@@ -32,7 +32,7 @@
 
 			<div class="form-group">
 				<label for="fld-deadline"><i class="fa fa-clock-o"></i> Prazo (em dias corridos)</label>
-				<input id="fld-deadline" class="form-control" v-model="input.deadline" type="number" min="1" max="365" />
+				<input id="fld-deadline" class="form-control" v-model="input.deadline" type="number" min="1" max="365" :disabled="hasDefinedCycle"/>
 			</div>
 
 			<div class="form-group">
@@ -61,8 +61,9 @@
 			input: {
 				flag_id: null,
 				reference_date: null,
-				deadline: 30,
+				deadline: null,
 			},
+			behavior: null,
 			entityType: 'family',
 			entityID: null,
 		}},
@@ -84,6 +85,10 @@
 						return {text: flag.name, value: flag.id}
 					})
 			},
+
+			hasDefinedCycle: function(){
+				return this.behavior == null || !this.behavior.includes('DefaultFlag');
+			}
 
 		},
 
@@ -152,6 +157,19 @@
 				})
 			}
 
+		},
+
+		watch: {
+			'input.flag_id': function(newInput){
+				if(!newInput) return;
+				
+				let flag = this.flags.find(flag => {
+					return flag.id === newInput
+				});
+				
+				this.input.deadline = flag.default_deadline;
+				this.behavior = flag.behavior;
+			}
 		}
 	}
 </script>
