@@ -58,6 +58,8 @@ export default {
                 id: alert.id,
                 justification: alert.justification
 			}, 'set');
+
+			if(!justification) return;
 			
 			this.alerts[index].justification = justification;
 			this.alerts[index].is_justified = true;
@@ -65,11 +67,14 @@ export default {
 
         showJustification: async function(index){
 			let alert = this.alerts[index];
-            let justification = await justifyPendence({
+            let removed = await justifyPendence({
                 id: alert.id,
                 justification: alert.justification
             }, 'show');
-			this.alerts[index].justification = justification;
+			
+			if(! removed) return;
+			
+			this.alerts[index].justification = null;
 			this.alerts[index].is_justified = false;
         }
 	}

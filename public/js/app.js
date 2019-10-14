@@ -83414,8 +83414,9 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 			input: {
 				flag_id: null,
 				reference_date: null,
-				deadline: 30
+				deadline: null
 			},
+			behavior: null,
 			entityType: 'family',
 			entityID: null
 		};
@@ -83439,6 +83440,10 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 			}).map(function (flag) {
 				return { text: flag.name, value: flag.id };
 			});
+		},
+
+		hasDefinedCycle: function hasDefinedCycle() {
+			return this.behavior == null || !this.behavior.includes('DefaultFlag');
 		}
 
 	},
@@ -83615,6 +83620,19 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 			return addFlagToEntity;
 		}()
 
+	},
+
+	watch: {
+		'input.flag_id': function inputFlag_id(newInput) {
+			if (!newInput) return;
+
+			var flag = this.flags.find(function (flag) {
+				return flag.id === newInput;
+			});
+
+			this.input.deadline = flag.default_deadline;
+			this.behavior = flag.behavior;
+		}
 	}
 });
 
@@ -84221,7 +84239,13 @@ var render = function() {
               }
             ],
             staticClass: "form-control",
-            attrs: { id: "fld-deadline", type: "number", min: "1", max: "365" },
+            attrs: {
+              id: "fld-deadline",
+              type: "number",
+              min: "1",
+              max: "365",
+              disabled: _vm.hasDefinedCycle
+            },
             domProps: { value: _vm.input.deadline },
             on: {
               input: function($event) {
@@ -85096,11 +85120,19 @@ var justifyPendence = Object(__WEBPACK_IMPORTED_MODULE_1_vue_modal_dialogs__["cr
 							case 3:
 								justification = _context3.sent;
 
+								if (justification) {
+									_context3.next = 6;
+									break;
+								}
+
+								return _context3.abrupt('return');
+
+							case 6:
 
 								this.alerts[index].justification = justification;
 								this.alerts[index].is_justified = true;
 
-							case 6:
+							case 8:
 							case 'end':
 								return _context3.stop();
 						}
@@ -85117,7 +85149,7 @@ var justifyPendence = Object(__WEBPACK_IMPORTED_MODULE_1_vue_modal_dialogs__["cr
 
 		showJustification: function () {
 			var _ref4 = _asyncToGenerator( /*#__PURE__*/__WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default.a.mark(function _callee4(index) {
-				var alert, justification;
+				var alert, removed;
 				return __WEBPACK_IMPORTED_MODULE_0_babel_runtime_regenerator___default.a.wrap(function _callee4$(_context4) {
 					while (1) {
 						switch (_context4.prev = _context4.next) {
@@ -85130,12 +85162,21 @@ var justifyPendence = Object(__WEBPACK_IMPORTED_MODULE_1_vue_modal_dialogs__["cr
 								}, 'show');
 
 							case 3:
-								justification = _context4.sent;
+								removed = _context4.sent;
 
-								this.alerts[index].justification = justification;
-								this.alerts[index].is_justified = false;
+								if (removed) {
+									_context4.next = 6;
+									break;
+								}
+
+								return _context4.abrupt('return');
 
 							case 6:
+
+								this.alerts[index].justification = null;
+								this.alerts[index].is_justified = false;
+
+							case 8:
 							case 'end':
 								return _context4.stop();
 						}
@@ -85771,7 +85812,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 							switch (_context3.prev = _context3.next) {
 								case 0:
 									_this2.isLoading = false;
-									_this2.$close();
+									_this2.$close(true);
 
 								case 2:
 								case "end":
@@ -85857,7 +85898,11 @@ var render = function() {
               }
             ],
             staticClass: "form-control",
-            attrs: { id: "justification", rows: "3" },
+            attrs: {
+              id: "justification",
+              rows: "3",
+              disabled: this.type === "show"
+            },
             domProps: { value: _vm.justification },
             on: {
               input: function($event) {

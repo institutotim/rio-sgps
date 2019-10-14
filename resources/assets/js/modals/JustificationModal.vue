@@ -6,7 +6,7 @@
 
 			<div class="form-group">
 				<label for="justification" class="col-form-label"> Justificativa:</label>
-				<textarea class="form-control" id="justification" rows="3" v-model="justification"></textarea>
+				<textarea class="form-control" id="justification" rows="3" v-model="justification" :disabled="this.type === 'show'"></textarea>
 			</div>
 
 			<div class="form-group">
@@ -73,7 +73,7 @@
 					API.headers()
 				).then(async (res) => {
 					this.isLoading = false;
-					this.$close();
+					this.$close(true);
 				}).catch(async (err) => {
 					this.isLoading = false;
 
