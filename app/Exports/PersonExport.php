@@ -69,7 +69,7 @@ class PersonExport implements FromCollection, WithHeadings, WithMapping {
 			return collect($person->toExportArray(true));
 		});
 
-		$this->questionCodes = Question::query()
+		$this->questionCodes = Question::select(\DB::raw("CONCAT(CONCAT(code, '||'),title) AS code"
 			->where('entity_type', 'person')
 			->get(['code'])
 			->pluck('code')
@@ -86,7 +86,8 @@ class PersonExport implements FromCollection, WithHeadings, WithMapping {
 
 		return collect($this->headings)
 			->map(function ($key) use ($person) {
-				return $person[$key] ?? '';
+				$tmpkey = explode("||", $key)[0];
+				return $person[$tmpkey] ?? '';
 			})
 			->toArray();
 	}
