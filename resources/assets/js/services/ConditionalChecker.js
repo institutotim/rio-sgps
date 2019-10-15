@@ -7,6 +7,19 @@ let calculateAgeInYears = function (dob) {
 	return moment().diff(dob, 'years');
 };
 
+let checkAndConditions = function(conditions, answers){
+	return conditions.every((condition) => {
+
+		let fieldCode = condition[0];
+		let ruleName = condition[1];
+
+		let fieldValue = answers[fieldCode];
+		let rule = ConditionRules[ruleName];
+
+		return rule.apply(rule, [fieldValue, ...condition.slice(2)])
+	})
+};
+
 export let ConditionRules = {
 
 	is_true: (fieldValue) => !!fieldValue,
@@ -28,18 +41,15 @@ export let ConditionRules = {
 };
 
 export function checkConditions(conditions, answers) {
-
 	if(!conditions || conditions.length <= 0) return true;
-
-	return conditions.every((condition) => {
-
-		let fieldCode = condition[0];
-		let ruleName = condition[1];
-
-		let fieldValue = answers[fieldCode];
-		let rule = ConditionRules[ruleName];
-
-		return rule.apply(rule, [fieldValue, ...condition.slice(2)])
-	})
-
-}
+	
+	let result = false;
+	if(conditions[0] === "OR") {
+		for(let i = 1; i<conditions.length; i++){
+			result = result || checkAndConditions(conditions[i], answers);
+		}
+	} else{
+		 result = checkAndConditions(conditions, answers);
+	}
+	return result;
+};
