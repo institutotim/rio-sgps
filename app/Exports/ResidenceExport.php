@@ -64,7 +64,7 @@ class ResidenceExport implements FromCollection, WithHeadings, WithMapping {
 			return collect($residence->toExportArray(true));
 		});
 
-		$this->questionCodes = Question::select(\DB::raw("CONCAT(CONCAT(code, '||'),title) AS code"
+		$this->questionCodes = Question::select(\DB::raw("CONCAT(CONCAT(code, '||'),title) AS code"))
 			->where('entity_type', 'residence')
 			->get(['code'])
 			->pluck('code')
