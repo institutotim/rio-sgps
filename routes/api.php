@@ -23,6 +23,8 @@ Route::group(['middleware' => 'auth:api'], function() {
 
 	Route::post('families/{family}/add_member', 'API\FamiliesController@add_member')->name('api.families.add_member');
 	Route::post('families/{family}/members/{member}/archive', 'API\FamiliesController@archive_member')->name('api.families.archive_member');
+	Route::put('families/{family}/update_kinship', 'API\FamiliesController@updateKinship')->name('api.families.update_kinship');
+	Route::put('families/{family}/set_member_in_charge', 'API\FamiliesController@setMemberInCharge')->name('api.families.set_member_in_charge');
 	Route::post('families/{family}/alert/justify', 'API\FamiliesController@justify');
 
 	Route::get('questions/categories', 'API\QuestionsController@fetch_categories')->name('api.questions.fetch_categories');

@@ -53,4 +53,27 @@ class FamilyManagementService {
 		$member->archive($reason);
 	}
 
+	/** 
+	 * Update member kinship
+	 * @param Family $family
+	 * @param int $kinship
+	 * 
+	*/
+	public function updateKinship(Person $member, int $kinship){
+		$member->kinship = $kinship;
+		$member->save();	
+	}
+
+	/**
+	 * Set member as responsible
+	 * @param Person $member
+	 * @param string $reason
+	 */
+
+	public function setMemberInCharge(Family $family, Person $member){
+		$family->person_in_charge_id = $member->id;
+		$this->updateKinship($member, 0);
+		$family->save();
+	}
+
 }

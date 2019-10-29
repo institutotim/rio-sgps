@@ -44,7 +44,6 @@
 
 		},
 
-
 		methods: {
 			justify: function(){
 				this.isLoading = true;

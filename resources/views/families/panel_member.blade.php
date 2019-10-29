@@ -14,6 +14,10 @@
 
 			<span class="badge badge-primary">{{$member->gender}}</span>
 
+			@if($member->hasKinshipAvailable() && $member->kinship !== 0)
+				<span class="badge badge-primary">{{$member->getKinship()}}</span>
+			@endif
+
 			@if($member->hasAgeAvailable())
 				<span class="badge badge-info">{{$member->getAge()}} anos</span>
 			@endif

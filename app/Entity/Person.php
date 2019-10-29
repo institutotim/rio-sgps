@@ -57,6 +57,19 @@ class Person extends Entity {
 	use HasShortCode;
 	use LogsActivity;
 
+	const KINSHIPS = [
+		'Responsável',
+		'Cônjuge,Companheiro(a)',
+		'Filho(a), Enteado(a)',
+		'Pai, Mãe, Sogro(a)',
+		'Neto(a), Bisneto(a)',
+		'Irmã, Irmão',
+		'Outro Parente',
+		'Agregado(a)',
+		'Pensioninsta/Inquilino',
+		'NS/NR'
+	];
+
 	protected $table = "persons";
 
 	protected $fillable = [
@@ -156,6 +169,14 @@ class Person extends Entity {
 	 */
 	public function isArchived() : bool {
 		return $this->deleted_at !== null && $this->archived_reason !== null;
+	}
+
+	public function hasKinshipAvailable() : bool {
+		return $this->kinship !== null;
+	}
+
+	public function getKinship() : string {
+		return self::KINSHIPS[$this->kinship];
 	}
 
 	/**

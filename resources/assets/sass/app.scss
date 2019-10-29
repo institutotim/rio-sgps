@@ -188,9 +188,9 @@
 .sgps__modal {
 	background-color: rgba(black, 0.5);
 
-    /*.modal-dialog {
-        max-width: 90% !important;
-    }*/
+    .modal-dialog {
+        max-width: 60% !important;
+    }
 }
 
 .card-disabled {
@@ -345,4 +345,33 @@
 	background: #008eb7 !important;
 	color: white !important;
 
+}
+
+.sgps__table{
+	width: 100%;
+
+	thead, tbody, tr, td, th {
+		display: block;
+	}
+
+	tr:after{
+		content: '';
+		display: block;
+		visibility: hidden;
+		clear: both;
+	}
+
+	thead th{
+		height: auto;
+		border-top: none;
+	}
+
+	tbody{
+		max-height: 50vh;
+		overflow-y: auto;
+	}
+
+	tbody td, thead th{
+		float: left;
+	}
 }

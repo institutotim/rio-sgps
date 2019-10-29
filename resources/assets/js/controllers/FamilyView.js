@@ -2,6 +2,7 @@ import { create } from 'vue-modal-dialogs'
 import AddFlagModal from '../modals/AddFlagModal';
 import AssignUserModal from '../modals/AssignUserModal';
 import ArchiveMemberModal from '../modals/ArchiveMemberModal';
+import UpdateFamilyModal from '../modals/UpdateFamilyModal';
 import Dialogs from "../services/Dialogs";
 import Endpoints from "../config/Endpoints";
 import API from "../services/API";
@@ -9,6 +10,7 @@ import API from "../services/API";
 const addFlag = create(AddFlagModal, 'family');
 const assignUser = create(AssignUserModal, 'family');
 const archiveMember = create(ArchiveMemberModal, 'familyId', 'memberId');
+const updateFamily = create(UpdateFamilyModal, 'family');
 
 export default {
 	props: [
@@ -147,6 +149,13 @@ export default {
 				Dialogs.alert('Ocorreu um erro ao salvar as informações!');
 			})
 
+		},
+
+		updateFamily: async function() {
+            let updated = await updateFamily(this.family);
+
+            if(updated)
+                location.reload();
 		}
 	}
 }

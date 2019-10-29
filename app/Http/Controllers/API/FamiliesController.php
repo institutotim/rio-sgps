@@ -87,4 +87,57 @@ class FamiliesController extends Controller {
 		return $this->api_success();
 	}
 
+	public function updateKinship(Family $family, FamilyManagementService $service){
+		
+		if(!$this->permissions->canEditEntity($this->currentUser, $family)) {
+			return $this->api_failure('user_cannot_edit_entity');
+		}
+	
+		$data = request('data');
+		
+		foreach ($data as $id=>$kinship) {
+
+			if($kinship == 0) continue;
+
+			$member = Person::findOrFail($id);
+
+			try {
+				$service->updateKinship($member, $kinship);
+			} catch (\Exception $e) {
+				return $this->api_exception($e);
+			}
+	
+			$this->activityLog->writeToFamilyLog($family, "member_kinship_updated", ['member' => $member, 'kinship' => $member->getKinship()]);
+
+		}
+
+		return $this->api_success();
+
+	}
+
+	public function setMemberInCharge(Family $family, FamilyManagementService $service){
+		
+		if(!$this->permissions->canEditEntity($this->currentUser, $family)) {
+			return $this->api_failure('user_cannot_edit_entity');
+		}
+
+		$member_id = request('member_id');
+		
+		$member = Person::findOrFail($member_id);
+	
+		if($member->family_id !== $family->id) {
+			return $this->api_failure('member_not_from_family');
+		}
+
+		try {
+			$service->setMemberInCharge($family, $member);
+		} catch (\Exception $e) {
+			return $this->api_exception($e);
+		}
+
+		$this->activityLog->writeToFamilyLog($family, "member_in_charge_updated", ['member' => $member]);
+
+		return $this->api_success();
+	}
+
 }

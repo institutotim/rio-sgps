@@ -23,7 +23,9 @@ export default {
 	Family: {
 		AddMember: 'api/families/@id@/add_member',
         ArchiveMember: 'api/families/@family_id@/members/@member_id@/archive',
-        Alert: {
+		updateKinship: 'api/families/@family_id@/update_kinship',
+		SetMemberInCharge: 'api/families/@family_id@/set_member_in_charge',
+		Alert: {
             Justify: 'api/families/@family_id@/alert/justify'
         }
 	},

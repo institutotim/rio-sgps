@@ -8,6 +8,7 @@
 			@if($family->personInCharge)
 				<h3>Responsável: {{$family->personInCharge->name}}</h3>
 			@endif
+			<button class="btn btn-primary" style="display: block" @click="updateFamily">Trocar de Responsável Familiar</button>
 		</div>
 		<div class="col-md-4">
 			<label class="detail__label">ETIQUETAS</label>
