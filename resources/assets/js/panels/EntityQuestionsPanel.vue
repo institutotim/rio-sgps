@@ -178,10 +178,11 @@
 				if(!this.canEdit) return;
 
 				let hasChangedProfile = false;
-				if(this.answers.CE50 && !checkConditions([["CE53","age_gt",18]], this.answers)){
-					Dialogs.alert('Ocorreu um erro: PESSOA RESPONSÁVEL deve ser maior de idade');
+				if(checkConditions([["CE50", "eq", 1]], this.answers) && !checkConditions([["CE53","can_be_responsible"]], this.answers)){
+                    Dialogs.alert('Ocorreu um erro: PESSOA RESPONSÁVEL deve ser maior de idade');
 					return;
-				}
+                }
+
 				this.isLoading = true;
 				return axios
 					.put(

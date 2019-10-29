@@ -1,6 +1,7 @@
 import moment from "moment";
 
 const CHILDREN_MAX_AGE = 14;
+const RESPONSIBLE_MIN_AGE = 18;
 
 let calculateAgeInYears = function (dob) {
 	if(!dob) return 0;
@@ -37,12 +38,13 @@ export let ConditionRules = {
 	age_gt: (fieldValue, param) => calculateAgeInYears(fieldValue) >= param,
 	age_lt: (fieldValue, param) => calculateAgeInYears(fieldValue) <= param,
 	is_children: (fieldValue) => calculateAgeInYears(fieldValue) <= CHILDREN_MAX_AGE,
+    can_be_responsible: (fieldValue) => calculateAgeInYears(fieldValue) >= RESPONSIBLE_MIN_AGE,
 
 };
 
 export function checkConditions(conditions, answers) {
 	if(!conditions || conditions.length <= 0) return true;
-	
+
 	let result = false;
 	if(conditions[0] === "OR") {
 		for(let i = 1; i<conditions.length; i++){
