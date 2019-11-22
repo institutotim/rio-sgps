@@ -41,5 +41,8 @@ Route::group(['middleware' => 'auth:api'], function() {
 	Route::post('assignments/{entity}/assign', 'API\AssignmentsController@assign')->name('api.assignments.assign');
 	Route::post('assignments/{entity}/unassign', 'API\AssignmentsController@unassign')->name('api.assignments.unassign');
 
-	Route::get('reports/all_metrics', 'API\ReportsController@all_metrics')->name('api.reports.all_metrics');
+    Route::get('reports/all_metrics', 'API\ReportsController@all_metrics')->name('api.reports.all_metrics');
+
 });
+
+Route::get('equipments/filter', 'API\EquipmentsController@filter')->name('api.equipments.filter');

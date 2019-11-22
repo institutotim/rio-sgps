@@ -30,22 +30,26 @@ class UsersController extends Controller {
 		$user = new User();
 
 		$groups = Group::query()->orderBy('name')->get();
-		$equipments = Equipment::query()->orderBy('name')->get();
+        $equipments = Equipment::query()->orderBy('name')->get();
+
+        $rps = (object) config('geo_rp');
 
 		$currentGroups = [];
 		$currentEquipments = [];
 
-		return view('admin.users_edit', compact('user', 'groups', 'equipments', 'currentGroups', 'currentEquipments'));
+		return view('admin.users_edit', compact('user', 'groups', 'equipments', 'currentGroups', 'currentEquipments', 'rps'));
 	}
 
 	public function show(User $user) {
 		$groups = Group::query()->orderBy('name')->get();
-		$equipments = Equipment::query()->orderBy('name')->get();
+        $equipments = Equipment::query()->orderBy('name')->get();
+
+        $rps = (object) config('geo_rp');
 
 		$currentGroups = $user->groups()->pluck('id')->toArray();
 		$currentEquipments = $user->equipments()->pluck('id')->toArray();
 
-		return view('admin.users_edit', compact('user', 'groups', 'equipments', 'currentGroups', 'currentEquipments'));
+		return view('admin.users_edit', compact('user', 'groups', 'equipments', 'currentGroups', 'currentEquipments', 'rps'));
 	}
 
 	public function save(?User $user = null) {

@@ -1,7 +1,8 @@
 export default {
 
 	data: () => { return {
-		selectedGroups: null,
+        selectedGroups: null,
+        selectedrps: null,
 	}},
 
 	props: ['initiallySelectedGroups'],
@@ -12,9 +13,9 @@ export default {
 
 	methods: {
 
-		hasSelectedGroup: function(groupCode) {
-			if(!this.selectedGroups) return false;
-			return this.selectedGroups.indexOf(groupCode) !== -1;
+        hasSelectedGroup: function(rpCode) {
+			if(!this.selectedrps) return false;
+			return this.selectedrps.indexOf(rpCode) !== -1;
 		},
 
 		onGroupsUpdate: function(groupCode, $event) {
@@ -27,6 +28,10 @@ export default {
 			}
 
 			console.log(this.selectedGroups);
+        },
+
+        onRPsUpdate: function(rpCode, $event) {
+			console.log(rpCode);
 		}
 
 	}

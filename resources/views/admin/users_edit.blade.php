@@ -73,6 +73,25 @@
 						</div>
 					</div>
 
+                    <br />
+
+                    <div class="card">
+						<div class="card-header">Região de Planejamento</div>
+						<div class="card-body row">
+
+							@foreach($rps as $rp)
+								<table class="table col-md-4">
+                                    <tr>
+                                        <td width="10%">
+                                                <input id="chk-rps-{{$rp['id']}}" @change="onRPsUpdate('{{$rp['id']}}', $event)" type="checkbox" name="rps[]" value="{{$rp['id']}}" @if(in_array($rp['id'], $currentGroups)) checked @endif />
+                                        </td>
+                                        <td width="90%"><label for="chk-rps-{{$rp['id']}}">{{$rp['name']}}</label></td>
+                                    </tr>
+								</table>
+							@endforeach
+						</div>
+					</div>
+
 					<br />
 
 					<div class="card">
