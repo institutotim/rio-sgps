@@ -49,13 +49,14 @@ class FamilyExport implements FromCollection, WithHeadings, WithMapping {
 
 	private $questionCodes = [];
 	private $headings = [];
+	private $bairros = [];
 
 	public function __construct(array $filters = [], FamilySearchService $service) {
 		$query = Family::query()
 			->with(['sector', 'residence', 'personInCharge', 'answers'])
 			->orderBy('created_at', 'desc');
 
-		$service->applyFiltersToQuery($query, collect($filters));
+		$query = $service->applyFiltersToQuery($query, collect($filters));
 
 		$families = $query->get();
 
@@ -71,6 +72,7 @@ class FamilyExport implements FromCollection, WithHeadings, WithMapping {
 			->toArray();
 
 		$this->headings = array_merge($this->baseHeadings, $this->questionCodes);
+		$this->bairros = config('geo_bairros');
 	}
 
 	public function collection() {
@@ -81,6 +83,8 @@ class FamilyExport implements FromCollection, WithHeadings, WithMapping {
 
 		return collect($this->headings)
 			->map(function ($key) use ($family) {
+				if($key == "Bairro")
+					return $this->bairros[$family[$key]]['name'];
 				$tmpkey = explode("||", $key)[0];
 				return $family[$tmpkey] ?? '';
 			})

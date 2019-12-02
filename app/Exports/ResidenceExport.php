@@ -46,14 +46,14 @@ class ResidenceExport implements FromCollection, WithHeadings, WithMapping {
 	];
 
 	private $questionCodes = [];
-
 	private $headings = [];
+	private $bairros = [];
 
 	public function __construct(array $filters = [], FamilySearchService $service) {
 		$query = Residence::query()
 			->with(['sector', 'answers'])
 			->whereHas('families', function ($sq) use ($service, $filters) {
-				$service->applyFiltersToQuery($sq, collect($filters));
+				$sq = $service->applyFiltersToQuery($sq, collect($filters));
 				return $sq;
 			})
 			->orderBy('created_at', 'desc');
@@ -71,6 +71,7 @@ class ResidenceExport implements FromCollection, WithHeadings, WithMapping {
 			->toArray();
 
 		$this->headings = array_merge($this->baseHeadings, $this->questionCodes);
+		$this->bairros = config('geo_bairros');
 	}
 
 	public function collection() {
@@ -81,6 +82,8 @@ class ResidenceExport implements FromCollection, WithHeadings, WithMapping {
 
 		return collect($this->headings)
 			->map(function ($key) use ($residence) {
+				if($key == "Bairro")
+					return $this->bairros[$residence[$key]]['name'];
 				$tmpkey = explode("||", $key)[0];
 				return $residence[$tmpkey] ?? '';
 			})
