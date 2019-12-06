@@ -58,16 +58,16 @@ class Person extends Entity {
 	use LogsActivity;
 
 	const KINSHIPS = [
-		'Responsável',
-		'Cônjuge,Companheiro(a)',
-		'Filho(a), Enteado(a)',
-		'Pai, Mãe, Sogro(a)',
-		'Neto(a), Bisneto(a)',
-		'Irmã, Irmão',
-		'Outro Parente',
-		'Agregado(a)',
-		'Pensioninsta/Inquilino',
-		'NS/NR'
+		1 => 'Responsável',
+		2 => 'Cônjuge,Companheiro(a)',
+		3 => 'Filho(a), Enteado(a)',
+		4 => 'Pai, Mãe, Sogro(a)',
+		5 => 'Neto(a), Bisneto(a)',
+		6 => 'Irmã, Irmão',
+		7 => 'Outro Parente',
+		8 => 'Agregado(a)',
+		9 => 'Pensioninsta/Inquilino',
+		99 => 'NS/NR'
 	];
 
 	protected $table = "persons";

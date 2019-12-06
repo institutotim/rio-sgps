@@ -97,8 +97,6 @@ class FamiliesController extends Controller {
 		
 		foreach ($data as $id=>$kinship) {
 
-			if($kinship == 0) continue;
-
 			$member = Person::findOrFail($id);
 
 			try {

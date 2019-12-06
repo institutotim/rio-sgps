@@ -27,16 +27,16 @@
                             </td>
                             <td class="col-md-5">
                                 <select name="" class="custom-select custom-select-sm" :disabled="shouldBlockSubmit || member.id === memberInChargeId" v-model="member.kinship" @change="setKinship(index)">
-                                    <option value=0></option>
-                                    <option value=1>Cônjuge,Companheiro(a)</option>
-                                    <option value=2>Filho(a), Enteado(a)</option>
-                                    <option value=3>Pai, Mãe, Sogro(a)</option>
-                                    <option value=4>Neto(a), Bisneto(a)</option>
-                                    <option value=5>Irmã, Irmão</option>
-                                    <option value=6>Outro Parente</option>
-                                    <option value=7>Agregado(a)</option>
-                                    <option value=8>Pensioninsta/Inquilino</option>
-                                    <option value=9>NS/NR</option>
+                                    <option value=1></option>
+                                    <option value=2>Cônjuge,Companheiro(a)</option>
+                                    <option value=3>Filho(a), Enteado(a)</option>
+                                    <option value=4>Pai, Mãe, Sogro(a)</option>
+                                    <option value=5>Neto(a), Bisneto(a)</option>
+                                    <option value=6>Irmã, Irmão</option>
+                                    <option value=7>Outro Parente</option>
+                                    <option value=8>Agregado(a)</option>
+                                    <option value=9>Pensioninsta/Inquilino</option>
+                                    <option value=99>NS/NR</option>
                                 </select>
                             </td>
                         </template>
@@ -96,7 +96,7 @@
                 const memberId = this.members[index].id;
 
                 this.memberInChargeId = memberId;
-                this.members[index].kinship = 0;
+                this.members[index].kinship = 1;
                 delete this.kinship[memberId];
             },
 

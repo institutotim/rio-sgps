@@ -62,6 +62,9 @@ class FamilyManagementService {
 	public function updateKinship(Person $member, int $kinship){
 		$member->kinship = $kinship;
 		$member->save();	
+
+		$ConditionQuestion = Question::fetchByCode('CE50');
+		$member->setAnswer($ConditionQuestion, $kinship);
 	}
 
 	/**
@@ -72,7 +75,7 @@ class FamilyManagementService {
 
 	public function setMemberInCharge(Family $family, Person $member){
 		$family->person_in_charge_id = $member->id;
-		$this->updateKinship($member, 0);
+		$this->updateKinship($member, 1);
 		$family->save();
 	}
 
