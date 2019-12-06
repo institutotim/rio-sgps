@@ -13,10 +13,11 @@
 
 namespace SGPS\Http\Controllers\Web;
 
-
+use Carbon\Carbon;
 use SGPS\Entity\Equipment;
 use SGPS\Entity\Family;
 use SGPS\Entity\Sector;
+use SGPS\Entity\Question;
 use SGPS\Http\Controllers\Controller;
 use SGPS\Services\FamilySearchService;
 
@@ -68,7 +69,7 @@ class AlertsController extends Controller {
 		return redirect()->route('alerts.index')->with('success', 'family_delivered');
 
 	}
-
+	
 	public function open_case(Family $family) {
 		if(!$family->is_alert) {
 			return redirect()->route('alerts.index')->with('error', 'family_not_alert');
@@ -81,6 +82,11 @@ class AlertsController extends Controller {
 		$family->openCase(auth()->user());
 
 		$this->activityLog->writeToFamilyLog($family, 'alert_case_opened');
+
+		$dataQuestion1 = Question::fetchByCode('CE75');
+		$dataQuestion2 = Question::fetchByCode('CE108');
+		$family->setAnswer($dataQuestion1, Carbon::now());
+		$family->setAnswer($dataQuestion2, Carbon::now());
 
 		return redirect()->route('families.show', [$family->id]);
 	}
