@@ -24,6 +24,7 @@
 
 						<div class="form-group">
 							<input type="search" name="filters[q]" value="{{$filters['q'] ?? ''}}" class="form-control form-control-sm" style="width: 150px" placeholder="Buscar...">
+							<button type="button" @click="doSearch()" class="btn btn-sm btn-dark">OK</button>
 						</div>
 
 						<div class="btn-group" role="group">
