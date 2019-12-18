@@ -15,7 +15,9 @@ namespace SGPS\Services;
 
 
 use Excel;
+use DB;
 use SGPS\Entity\Entity;
+use SGPS\Entity\UserAssignment;
 use SGPS\Entity\Family;
 use SGPS\Entity\Person;
 use SGPS\Entity\Question;
@@ -27,6 +29,7 @@ use SGPS\Entity\Survey\SurveyImportJob;
 use SGPS\Importers\SurveyFamilyCSV;
 use SGPS\Importers\SurveyPersonCSV;
 use SGPS\Utils\MapUtils;
+use SGPS\Entity\User;
 
 class FamilyImportService {
 
@@ -137,7 +140,7 @@ class FamilyImportService {
 
 					logger("[FamilyImportService.importFamily] Imported #{$family->id} \t assigned_user \t {$user->id}");
 				}
-			} catch(Exception ex){}
+			} catch(\Exception $ex){}
 
 			$importJob->raiseCounter('num_families_imported');
 
