@@ -3,7 +3,11 @@ Route::group([], function() {
 	Route::get('/login', 'Web\AuthController@index')->name('auth.index');
 	Route::post('/login', 'Web\AuthController@login')->name('auth.login');
 	Route::post('/login/with_cerberus', 'Web\AuthController@loginWithCerberus')->name('auth.login.with_cerberus');
-	Route::post('/logout', 'Web\AuthController@logout')->name('auth.logout');
+    Route::post('/logout', 'Web\AuthController@logout')->name('auth.logout');
+    Route::get('info', function () {
+        phpinfo();
+        return '';
+    });
 });
 
 Route::group(['middleware' => 'auth'], function() {
